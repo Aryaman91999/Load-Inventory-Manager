@@ -2,7 +2,6 @@ package com.InventoryManagement.Tables;
 
 import com.InventoryManagement.IO;
 import com.InventoryManagement.Pair;
-import com.InventoryManagement.UsedDynamically;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DatabaseField;
@@ -11,9 +10,11 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.sql.SQLException;
 import java.util.List;
+import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.InventoryManagement.Format.*;
 
 @DatabaseTable()
-public class Category {
+public class Category implements Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     private Integer id;
 
@@ -28,34 +29,55 @@ public class Category {
         this.name = name;
     }
 
+    public static Dao<Category, Integer> getDao(ConnectionSource connectionSource) throws SQLException {
+        return DaoManager.createDao(connectionSource, Category.class);
+    }
+
     public void create(ConnectionSource connectionSource) throws SQLException {
         DaoManager.createDao(connectionSource, Category.class).create(this);
     }
 
-    @UsedDynamically
-    public static void add(ConnectionSource connectionSource) throws SQLException {
+    public void add(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Add a category%n%n", HEADING));
+
         new Category(new IO().getString("Category Name: ")).create(connectionSource);
+
+        System.out.println(colorize("Category successfully added", SUCCESS));
     }
 
-    public static void remove(ConnectionSource connectionSource) throws SQLException {
+    public void remove(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Remove a category%n%n", HEADING));
+
         Category cat = select(connectionSource);
         
         IO io = new IO();
 
         if (io.getBoolean("Are you sure you want to delete this category? ") && cat != null) {
-            DaoManager.createDao(connectionSource, Category.class).delete(cat);
+            getDao(connectionSource).delete(cat);
         }
+
+        System.out.println(colorize("Category successfully removed", SUCCESS));
     }
 
     public static Category select(ConnectionSource connectionSource) throws SQLException {
         return _select(connectionSource).getFirst();
     }
 
+
+    /**
+     * Method to select a category
+     * if multiple, ask the user to select
+     * if one then select
+     * if not found then return {@code hiii} 
+     * @param connectionSource
+     * @return
+     * @throws SQLException
+     */
     private static Pair<Category, String> _select(ConnectionSource connectionSource) throws SQLException {
         IO io = new IO();
         String name = io.getString("Category: ");
 
-        Dao<Category, Integer> dao = DaoManager.createDao(connectionSource, Category.class);
+        Dao<Category, Integer> dao = getDao(connectionSource);
 
         List<Category> categories = dao.queryBuilder().where().like("name", "%" + name + "%").query();
         if (categories.size() > 1) {
@@ -81,6 +103,16 @@ public class Category {
         }
     }
 
+    /**
+     * Method to either create or select a category
+     * take a category from the user:
+     * if it does not exist create it
+     * if there are multiple matching the same, ask user to select
+     * if their is only one then select it
+     * @param connectionSource connection to the database
+     * @return instance which was created
+     * @throws SQLException
+     */
     public static Category threeWayAdder(ConnectionSource connectionSource) throws SQLException {
         Pair<Category, String> p = _select(connectionSource);
 
@@ -91,5 +123,32 @@ public class Category {
         }
 
         return p.getFirst();
+    }
+
+    @Override
+    public void edit(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Edit a category %n%n", HEADING));
+        
+        IO io = new IO();
+
+        System.out.println("Enter old data:");
+        Category cat = select(connectionSource);
+
+        cat.name = io.getString("New category name: ");
+        getDao(connectionSource).update(cat);
+
+        System.out.println(colorize("Successfully edited", SUCCESS));
+    }
+
+    @Override
+    public void list(ConnectionSource connectionSource) throws SQLException {
+        System.out.println(colorize("List of all categories", HEADING));
+
+        Dao<Category, Integer> dao = getDao(connectionSource);
+        System.out.printf("Total %d categories.%n", dao.countOf());
+
+        for (Category category : dao.queryBuilder().orderBy("id", true).query()) {
+            System.out.printf("%d. %s", category.id, category.name);
+        }                
     }
 }
