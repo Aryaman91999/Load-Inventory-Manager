@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 
+import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.diogonunes.jcolor.Attribute.*;
+
 public class App {
     enum Objects {
         Part,
@@ -20,8 +23,7 @@ public class App {
         Issue
     }
 
-    public static void main(String[] args) throws SQLException, IOException {
-        System.out.println("dis new");
+    public static void main(String[] args) {
 
         final CommandLineParser cmdParser = new DefaultParser();
         CommandLine commandLine;
@@ -41,7 +43,7 @@ public class App {
         if (commandLine.hasOption("i")) {
             ConnectionSource connectionSource;
             IniManager.initialize();
-            System.out.println("Successfully initialized settings.ini");
+            System.out.println(colorize("Successfully initialized settings.ini", GREEN_TEXT()));
             if (commandLine.getOptionValue("i") == null) {
                 connectionSource = IniManager.setDB("database.db");
             } else {
@@ -50,14 +52,18 @@ public class App {
 
             assert connectionSource != null;
 
-            // create all the tables needed
-            TableUtils.createTableIfNotExists(connectionSource, Category.class);
-            TableUtils.createTableIfNotExists(connectionSource, Part.class);
-            TableUtils.createTableIfNotExists(connectionSource, Student.class);
-            TableUtils.createTableIfNotExists(connectionSource, Issue.class);
-            connectionSource.close();
+            try {
+                // create all the tables needed
+                TableUtils.createTableIfNotExists(connectionSource, Category.class);
+                TableUtils.createTableIfNotExists(connectionSource, Part.class);
+                TableUtils.createTableIfNotExists(connectionSource, Student.class);
+                TableUtils.createTableIfNotExists(connectionSource, Issue.class);
+                connectionSource.close();
+            } catch (SQLException | IOException e) {
+                e.printStackTrace();
+            }
 
-            System.out.println("Initialized database");
+            System.out.println(colorize("Initialized database", GREEN_TEXT()));
             System.exit(0);
         }
         if (commandLine.hasOption("a")) {
@@ -65,6 +71,12 @@ public class App {
         }
         if (commandLine.hasOption("r")) {
             mod = 'r';
+        }
+        if (commandLine.hasOption("l")) {
+            mod = 'l';
+        }
+        if (commandLine.hasOption("e")) {
+            mod = 'e';
         }
         if (commandLine.hasOption("H")) {
             Statistics.history(IniManager.getDB());
@@ -94,16 +106,25 @@ public class App {
                 case 'a' -> func = "add";
                 case 'r' -> func = "remove";
                 case 'e' -> func = "edit";
+                case 'l' -> func = "list";
             }
 
             ConnectionSource db = IniManager.getDB();
 
             try {
-                model.getMethod(func, ConnectionSource.class).invoke(model, db);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                    | NoSuchMethodException | SecurityException e) {
+                model.getMethod(func, ConnectionSource.class).invoke(model.getConstructor().newInstance(), db);
+            } catch (InvocationTargetException e) {
+                if (e.getCause() instanceof SQLException) {
+                    System.out.println("SQL Error: " + e.getMessage());
+                } else {
+                    e.printStackTrace();
+                }
+            } catch (IllegalAccessException | IllegalArgumentException
+                    | NoSuchMethodException | SecurityException | InstantiationException e) {
+
                 e.printStackTrace();
             }
+
         }
     }
 }

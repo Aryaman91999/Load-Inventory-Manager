@@ -3,7 +3,6 @@ package com.InventoryManagement.Tables;
 import java.sql.SQLException;
 
 import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.dao.Dao;
 
 /*
 All tables must implement this interface

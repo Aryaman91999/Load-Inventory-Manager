@@ -1,6 +1,7 @@
 package com.InventoryManagement.Tables;
 
 import com.InventoryManagement.Tables.IssueDao.*;
+import com.diogonunes.jcolor.Attribute;
 import com.InventoryManagement.AsDate;
 import com.InventoryManagement.IO;
 import com.j256.ormlite.dao.DaoManager;
@@ -14,6 +15,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.diogonunes.jcolor.Attribute.*;
 
 /**
  * Model for the issue object
@@ -24,12 +27,10 @@ public class Issue {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public Integer id;
 
-    @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true,
-    columnDefinition = "integer constraint fk_name references part(id) on delete CASCADE")
+    @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, columnDefinition = "integer constraint fk_name references part(id) on delete CASCADE")
     public Part part;
 
-    @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true,
-    columnDefinition = "integer constraint fk_name references student(id) on delete CASCADE")
+    @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, columnDefinition = "integer constraint fk_name references student(id) on delete CASCADE")
     public Student issued_to;
 
     @DatabaseField(canBeNull = false)
@@ -41,11 +42,11 @@ public class Issue {
     @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "dd-MM-yyyy")
     public Date return_on;
 
-    Issue() {
+    public Issue() {
 
     }
 
-    Issue(Part part, Student issued_to, int quantity, Date return_on) {
+    public Issue(Part part, Student issued_to, int quantity, Date return_on) {
         this.part = part;
         this.issued_to = issued_to;
         this.quantity = quantity;
@@ -69,7 +70,7 @@ public class Issue {
         Issue issue = select(connectionSource);
 
         System.out.println("Now, enter the new values: ");
-        
+
         IO io = new IO();
 
         issue.issued_to = Student.threeWayAdder(connectionSource);
@@ -87,23 +88,23 @@ public class Issue {
 
     public static Issue select(ConnectionSource connectionSource) throws SQLException {
         IO io = new IO();
-            int part_id = Part.select(connectionSource).id;
-            int student_id = Student.select(connectionSource).id;
-            int quantity = io.getInteger("Quantity: ");
+        int part_id = Part.select(connectionSource).id;
+        int student_id = Student.select(connectionSource).id;
+        int quantity = io.getInteger("Quantity: ");
 
-            Date issued_on = io.getDate("Issued On: (dd-MM-yyyy): ");
+        Date issued_on = io.getDate("Issued On: (dd-MM-yyyy): ");
 
-            IssueDao dao = getDao(connectionSource);
-            Where<Issue, Integer> where = dao.queryBuilder().where();
+        IssueDao dao = getDao(connectionSource);
+        Where<Issue, Integer> where = dao.queryBuilder().where();
 
-            // equality checks for all the values
-            where.eq("part_id", part_id);
-            where.eq("issued_to_id", student_id);
-            where.eq("quantity", quantity);
-            where.eq("issued_on", issued_on);
-            where.and(4);
+        // equality checks for all the values
+        where.eq("part_id", part_id);
+        where.eq("issued_to_id", student_id);
+        where.eq("quantity", quantity);
+        where.eq("issued_on", issued_on);
+        where.and(4);
 
-            return where.queryForFirst();
+        return where.queryForFirst();
     }
 
     public static void add(ConnectionSource connectionSource) throws SQLException {
@@ -115,7 +116,8 @@ public class Issue {
             return;
         }
 
-        issue.quantity = io.getInteger("Part quantity to issue: ", r -> r <= issue.part.quantity && r > 0, "Please enter a valid amount to issue");
+        issue.quantity = io.getInteger("Part quantity to issue: ", r -> r <= issue.part.quantity && r > 0,
+                "Please enter a valid amount to issue");
         issue.issued_to = Student.threeWayAdder(connectionSource);
         if (issue.issued_to == null) {
             return;
@@ -131,5 +133,72 @@ public class Issue {
         issue.issued_on = AsDate.asDate(currentDate);
 
         issue.create(connectionSource);
+
+        System.out.println(colorize("Issue successfully added", GREEN_TEXT()));
+    }
+
+    public void list(ConnectionSource connectionSource) throws SQLException {
+        // print the list of all the issues in tabular format
+
+        int len_part = "part".length(); // not 0 because we need space for the headers of the table
+        int len_quantity = "quantity".length();
+        int len_student = "issued to".length();
+        int len_id = 2;
+
+        // format = dd-MM-yyyy
+        final int len_date = 10;
+
+        // calculate the maximum lengths for each field
+        for (Issue issue : getDao(connectionSource)) {
+            int part = issue.part.name.length();
+            if (part > len_part) {
+                len_part = part;
+            }
+
+            int quan = issue.quantity.toString().length();
+            if (quan > len_quantity) {
+                len_quantity = quan;
+            }
+
+            int student = issue.issued_to.name.length();
+            if (student > len_student) {
+                len_student = student;
+            }
+
+            int id = issue.id.toString().length();
+            if (id > len_id) {
+                len_id = id;
+            }
+        }
+
+        System.out.printf("| ID%s | Part%s | Issued to%s | Quantity%s | Issued On%s | Return On%s |%n",
+                " ".repeat(len_id - 2),
+                " ".repeat(len_part - "Part".length()),
+                " ".repeat(len_student - "Issued to".length()),
+                " ".repeat(len_quantity - "Quantity".length()),
+                " ".repeat(len_date - "Issued On".length()),
+                " ".repeat(len_date - "Return On".length()));
+
+        System.out.printf("|-%s-|-%s-|-%s-|-%s-|-%s-|-%s-|%n", "-".repeat(len_id), "-".repeat(len_part), "-".repeat(len_student), "-".repeat(len_quantity), "-".repeat(len_date), "-".repeat(len_date));
+
+        for (Issue issue : getDao(connectionSource).queryBuilder().orderBy("id", true).query()) {
+            String id = issue.id.toString();
+            String student = issue.issued_to.name;
+            String part = issue.part.name;
+            String quantity = issue.quantity.toString();
+            String issued_on = AsDate.toString(issue.issued_on);
+            String return_on = AsDate.toString(issue.return_on);
+        
+
+            System.out.printf("| %s | %s | %s | %s | %s | %s |%n", 
+                id + " ".repeat(len_id - id.length()),
+                part + " ".repeat(len_part - part.length()),
+                student + " ".repeat(len_student - student.length()),
+                quantity + " ".repeat(len_quantity - quantity.length()),
+                issued_on + " ".repeat(len_date - issued_on.length()),
+                return_on + " ".repeat(len_date - return_on.length())
+            );
+
+        }
     }
 }

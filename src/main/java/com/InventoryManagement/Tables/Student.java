@@ -13,6 +13,9 @@ import com.j256.ormlite.table.DatabaseTable;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.diogonunes.jcolor.Attribute.*;
+
 @DatabaseTable()
 public class Student {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
@@ -51,6 +54,9 @@ public class Student {
         student.email = io.getString("Student email: ");
 
         student.create(connectionSource);
+
+        System.out.println(
+                colorize("Student successfully added", GREEN_TEXT()));
     }
 
     public static Dao<Student, Integer> getDao(ConnectionSource connectionSource) throws SQLException {
@@ -61,7 +67,8 @@ public class Student {
         Student student = select(connectionSource);
         IO io = new IO();
 
-        if (io.getBoolean("Are you sure you want to delete this student? This will delete related issue requests too ") && student != null) {
+        if (io.getBoolean("Are you sure you want to delete this student? This will delete related issue requests too ")
+                && student != null) {
             IssueDao dao = Issue.getDao(connectionSource);
             dao.delete(dao.queryBuilder().where().eq("issued_to_id", student.id).query());
             getDao(connectionSource).delete(student);
@@ -86,13 +93,13 @@ public class Student {
         getDao(connectionSource).create(this);
     }
 
-
     public static Student threeWayAdder(ConnectionSource connectionSource) throws SQLException {
         Pair<Student, String> p = _select(connectionSource);
 
         if (p.isNull()) {
             IO io = new IO();
-            if (io.getBoolean(String.format("No students found for %s. Would you like to add this student? ", p.getSecond()))) {
+            if (io.getBoolean(
+                    String.format("No students found for %s. Would you like to add this student? ", p.getSecond()))) {
                 int _class = io.getInteger("Student class: ");
                 int roll_no = io.getInteger("Student roll no.: ");
                 ValidateEmail v = new ValidateEmail();
@@ -132,8 +139,8 @@ public class Student {
             return new Pair<Student, String>(null, name);
         } else if (students.size() > 1) {
             System.out.printf("Multiple students found for \"%s\"", name);
-            
-            int i  = 1;
+
+            int i = 1;
 
             for (Student student : students) {
                 System.out.printf("%d. %s%n", i, student.print());
@@ -141,9 +148,9 @@ public class Student {
 
             // get integer with validation of range
             int idx = io.getInteger("Who did you mean?",
-                    (r) ->  r > 0 && r >= students.size() + 1, "Number must be in the range of options.");
+                    (r) -> r > 0 && r >= students.size() + 1, "Number must be in the range of options.");
 
-            return new Pair<Student, String>(students.get(idx-1), name);
+            return new Pair<Student, String>(students.get(idx - 1), name);
         } else {
             return new Pair<Student, String>(students.get(0), name);
         }

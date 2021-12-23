@@ -13,6 +13,9 @@ import com.j256.ormlite.table.DatabaseTable;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.diogonunes.jcolor.Attribute.*;
+
 @DatabaseTable()
 public class Part {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
@@ -47,6 +50,7 @@ public class Part {
         part.category = Category.threeWayAdder(connectionSource);
 
         part.create(connectionSource);
+        System.out.println(colorize("Part successfully added", GREEN_TEXT()));
     }
 
     public static void remove(ConnectionSource connectionSource) throws SQLException {
