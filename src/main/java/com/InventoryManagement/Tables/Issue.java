@@ -1,7 +1,6 @@
 package com.InventoryManagement.Tables;
 
 import com.InventoryManagement.Tables.IssueDao.*;
-import com.diogonunes.jcolor.Attribute;
 import com.InventoryManagement.AsDate;
 import com.InventoryManagement.IO;
 import com.j256.ormlite.dao.DaoManager;
@@ -16,6 +15,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.InventoryManagement.Format.*;
 import static com.diogonunes.jcolor.Attribute.*;
 
 /**
@@ -23,7 +23,7 @@ import static com.diogonunes.jcolor.Attribute.*;
  * Fields: id, part, issued_to, quantity, issued_on, return_on
  */
 @DatabaseTable(daoClass = IssueDaoImpl.class)
-public class Issue {
+public class Issue implements Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public Integer id;
 
@@ -58,14 +58,20 @@ public class Issue {
     }
 
     public void remove(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Remove an issue%n%n", HEADING));
+
         Issue issue = select(connectionSource);
         IO io = new IO();
         if (io.getBoolean("Are you sure you want to remove this issue? ") && issue != null) {
             getDao(connectionSource).delete(issue);
         }
+
+        System.out.printf(colorize("%nIssue removed successfully%n", SUCCESS));
     }
 
     public void edit(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Edit an issue%n%n", HEADING));
+
         System.out.println("First, enter the current values of the issue you want to edit: ");
         Issue issue = select(connectionSource);
 
@@ -80,6 +86,8 @@ public class Issue {
         issue.return_on = io.getDate("Return on (dd-MM-yyyy): ");
 
         getDao(connectionSource).update(issue);
+
+        System.out.printf(colorize("%nIssue edited successfully%n", SUCCESS));
     }
 
     public static IssueDao getDao(ConnectionSource connectionSource) throws SQLException {
@@ -107,7 +115,9 @@ public class Issue {
         return where.queryForFirst();
     }
 
-    public static void add(ConnectionSource connectionSource) throws SQLException {
+    public void add(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Add an issue%n%n", HEADING));
+
         Issue issue = new Issue();
         IO io = new IO();
 
@@ -123,7 +133,7 @@ public class Issue {
             return;
         }
 
-        issue.return_on = io.getDate("Return on: ");
+        issue.return_on = io.getDate("Return on (dd-MM-yyyy): ");
 
         // convert current local date to date format
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -134,10 +144,22 @@ public class Issue {
 
         issue.create(connectionSource);
 
-        System.out.println(colorize("Issue successfully added", GREEN_TEXT()));
+        System.out.printf(colorize("%nIssue successfully added%n", SUCCESS));
     }
 
-    public void list(ConnectionSource connectionSource) throws SQLException {
+    public void list(ConnectionSource connectionSource) throws SQLException  {
+        System.out.printf(colorize("All issue requests%n%n", HEADING));
+
+        IssueDao dao = getDao(connectionSource);
+
+        if (dao.countOf() == 0) {
+            System.out.println("No issue requests in database.");
+            return;
+        }
+
+        System.out.printf("%d total issue requests, %d active.%n", dao.countOf(), dao.queryBuilder().where().gt("return_on", AsDate.asDate(LocalDate.now())).countOf());
+        
+        System.out.println(colorize("  ", RED_BACK()) + " = active issue request");
         // print the list of all the issues in tabular format
 
         int len_part = "part".length(); // not 0 because we need space for the headers of the table
@@ -149,7 +171,7 @@ public class Issue {
         final int len_date = 10;
 
         // calculate the maximum lengths for each field
-        for (Issue issue : getDao(connectionSource)) {
+        for (Issue issue : dao) {
             int part = issue.part.name.length();
             if (part > len_part) {
                 len_part = part;
@@ -181,7 +203,7 @@ public class Issue {
 
         System.out.printf("|-%s-|-%s-|-%s-|-%s-|-%s-|-%s-|%n", "-".repeat(len_id), "-".repeat(len_part), "-".repeat(len_student), "-".repeat(len_quantity), "-".repeat(len_date), "-".repeat(len_date));
 
-        for (Issue issue : getDao(connectionSource).queryBuilder().orderBy("id", true).query()) {
+        for (Issue issue : dao) {
             String id = issue.id.toString();
             String student = issue.issued_to.name;
             String part = issue.part.name;
@@ -190,7 +212,7 @@ public class Issue {
             String return_on = AsDate.toString(issue.return_on);
         
 
-            System.out.printf("| %s | %s | %s | %s | %s | %s |%n", 
+            System.out.printf(colorize("| %s | %s | %s | %s | %s | %s |", issue.return_on.after(AsDate.asDate(LocalDate.now())) ? RED_BACK() : NONE()) + "%n", 
                 id + " ".repeat(len_id - id.length()),
                 part + " ".repeat(len_part - part.length()),
                 student + " ".repeat(len_student - student.length()),

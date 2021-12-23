@@ -2,7 +2,6 @@ package com.InventoryManagement.Tables;
 
 import com.InventoryManagement.IO;
 import com.InventoryManagement.Pair;
-import com.InventoryManagement.UsedDynamically;
 import com.InventoryManagement.Tables.IssueDao.IssueDao;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -12,19 +11,20 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import static com.diogonunes.jcolor.Ansi.colorize;
-import static com.diogonunes.jcolor.Attribute.*;
+import static com.InventoryManagement.Format.*;
 
 @DatabaseTable()
-public class Part {
+public class Part implements Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public Integer id;
 
     @DatabaseField(canBeNull = false)
     public Integer quantity;
 
-    @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true)
+    @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
     public Category category;
 
     @DatabaseField(canBeNull = false, unique = true)
@@ -40,8 +40,9 @@ public class Part {
         this.name = name;
     }
 
-    @UsedDynamically
-    public static void add(ConnectionSource connectionSource) throws SQLException {
+    public void add(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Add a part%n%n", HEADING));
+
         IO io = new IO();
         Part part = new Part();
 
@@ -50,10 +51,13 @@ public class Part {
         part.category = Category.threeWayAdder(connectionSource);
 
         part.create(connectionSource);
-        System.out.println(colorize("Part successfully added", GREEN_TEXT()));
+
+        System.out.println(colorize("%nPart successfully added%n", SUCCESS));
     }
 
-    public static void remove(ConnectionSource connectionSource) throws SQLException {
+    public void remove(ConnectionSource connectionSource) throws SQLException {
+        System.out.println(colorize("Remove a part", HEADING));
+
         Part part = select(connectionSource);
         
         IO io = new IO();
@@ -63,9 +67,13 @@ public class Part {
             dao.delete(dao.queryBuilder().where().eq("part_id", part.id).query());
             getDao(connectionSource).delete(part);
         }
+
+        System.out.printf(colorize("%nPart successfully removed%n"));
     }
 
-    public static void edit(ConnectionSource connectionSource) throws SQLException {
+    public void edit(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Edit a part%n%n", HEADING));
+
         Part part = select(connectionSource);
 
         IO io = new IO();
@@ -77,6 +85,73 @@ public class Part {
         part.category = Category.threeWayAdder(connectionSource);
 
         getDao(connectionSource).update(part);
+
+        System.out.printf(colorize("%nPart successfully edited%n", SUCCESS));
+    }
+
+    public void list(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("All parts%n%n", HEADING));
+
+        Dao<Part, Integer> dao = getDao(connectionSource);
+        
+        if (dao.countOf() == 0) {
+            System.out.println("There are no parts in the database");
+        }
+
+        System.out.printf("Total %d parts", dao.countOf());
+
+        int _name = "name".length();
+        int _quantity = "quantity".length();
+        int _category = "category".length();
+        int _id = 2;
+
+        int len_name = "name".length();
+        int len_quantity = "quantity".length();
+        int len_category = "category".length();
+        int len_id = 2;
+
+
+        for (Part part : dao) {
+            int n = part.name.length();
+            if (len_name < n) {
+                len_name = n;
+            }
+
+            int q = part.quantity.toString().length();
+            if (len_quantity < q) {
+                len_quantity = q;
+            }
+
+            int c = part.category.name.length();
+            if (len_category < c) {
+                len_category = c;
+            }
+
+            int i = part.id.toString().length();
+            if (len_id < i) {
+                len_id = i;
+            }
+        }
+
+        BiFunction<String, Integer, String> format = (val, max) -> val + " ".repeat(max - val.length());
+
+        System.out.printf("| ID%s | Name%s | Quantity%s | Category%s |%n", 
+            " ".repeat(len_id - _id),
+            " ".repeat(len_name - _name),
+            " ".repeat(len_quantity - _quantity),
+            " ".repeat(len_category - _category)
+        );
+
+        System.out.printf("|-%s-|-%s-|-%s-|-%s-|%n", "-".repeat(len_id), "-".repeat(len_name), "-".repeat(len_quantity), "-".repeat(len_category));
+
+        for (Part part : dao) {
+            System.out.printf("| %s | %s | %s | %s |%n",
+                format.apply(part.id.toString(), len_id),
+                format.apply(part.name, len_name),
+                format.apply(part.quantity.toString(), len_quantity),
+                format.apply(part.category.name, len_category)
+            );
+        }
     }
 
     private static Dao<Part, Integer> getDao(ConnectionSource connectionSource) throws SQLException {

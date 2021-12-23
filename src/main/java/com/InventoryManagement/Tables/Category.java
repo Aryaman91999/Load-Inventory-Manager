@@ -38,11 +38,11 @@ public class Category implements Table {
     }
 
     public void add(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Add a category%n%n", HEADING));
+        System.out.printf(colorize("Add a category%n",  HEADING));
 
         new Category(new IO().getString("Category Name: ")).create(connectionSource);
 
-        System.out.println(colorize("Category successfully added", SUCCESS));
+        System.out.printf(colorize("%nCategory successfully added%n",  SUCCESS));
     }
 
     public void remove(ConnectionSource connectionSource) throws SQLException {
@@ -56,7 +56,7 @@ public class Category implements Table {
             getDao(connectionSource).delete(cat);
         }
 
-        System.out.println(colorize("Category successfully removed", SUCCESS));
+        System.out.printf(colorize("%nCategory successfully removed%n", SUCCESS));
     }
 
     public static Category select(ConnectionSource connectionSource) throws SQLException {
@@ -68,9 +68,9 @@ public class Category implements Table {
      * Method to select a category
      * if multiple, ask the user to select
      * if one then select
-     * if not found then return {@code hiii} 
+     * if not found then return null
      * @param connectionSource
-     * @return
+     * @return the selected object, null if none found
      * @throws SQLException
      */
     private static Pair<Category, String> _select(ConnectionSource connectionSource) throws SQLException {
@@ -137,12 +137,12 @@ public class Category implements Table {
         cat.name = io.getString("New category name: ");
         getDao(connectionSource).update(cat);
 
-        System.out.println(colorize("Successfully edited", SUCCESS));
+        System.out.printf(colorize("%nSuccessfully edited%n", SUCCESS));
     }
 
     @Override
     public void list(ConnectionSource connectionSource) throws SQLException {
-        System.out.println(colorize("List of all categories", HEADING));
+        System.out.printf(colorize("List of all categories%n%n", HEADING));
 
         Dao<Category, Integer> dao = getDao(connectionSource);
         System.out.printf("Total %d categories.%n", dao.countOf());

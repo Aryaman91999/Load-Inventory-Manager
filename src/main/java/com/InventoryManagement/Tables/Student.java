@@ -12,12 +12,14 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import static com.diogonunes.jcolor.Ansi.colorize;
 import static com.diogonunes.jcolor.Attribute.*;
+import static com.InventoryManagement.Format.*;
 
 @DatabaseTable()
-public class Student {
+public class Student implements Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public Integer id;
 
@@ -44,7 +46,7 @@ public class Student {
         this.roll_no = roll_no;
     }
 
-    public static void add(ConnectionSource connectionSource) throws SQLException {
+    public void add(ConnectionSource connectionSource) throws SQLException {
         IO io = new IO();
         Student student = new Student();
 
@@ -63,7 +65,7 @@ public class Student {
         return DaoManager.createDao(connectionSource, Student.class);
     }
 
-    public static void remove(ConnectionSource connectionSource) throws SQLException {
+    public void remove(ConnectionSource connectionSource) throws SQLException {
         Student student = select(connectionSource);
         IO io = new IO();
 
@@ -75,7 +77,9 @@ public class Student {
         }
     }
 
-    public static void edit(ConnectionSource connectionSource) throws SQLException {
+    public void edit(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Edit a student's info%n%n", HEADING));
+
         Student student = select(connectionSource);
 
         IO io = new IO();
@@ -87,6 +91,84 @@ public class Student {
         student.email = io.getString("Student email: ");
 
         getDao(connectionSource).update(student);
+
+        System.out.printf(colorize("%nSuccessfully edited student info%n", SUCCESS));
+    }
+
+    public void list(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("All students%n%n", HEADING));
+
+        Dao<Student, Integer> dao = getDao(connectionSource);
+        
+        if (dao.countOf() == 0) {
+            System.out.println("There are no students in the database");
+        }
+
+        System.out.printf("Total %d students%n", dao.countOf());
+
+        // store these lengths so that we don't have to recompute them
+        int _id = 2;
+        int _name = "name".length();
+        int _class = "class".length();
+        int _roll_no = "roll no.".length();
+        int _email = "Email".length();
+
+        // max lengths for the fields
+        // not needed for class at it will be only 2 digits
+        int len_id = _id;
+        int len_name = _name;
+        int len_roll_no = _roll_no;
+        int len_email = _email;
+
+        for (Student student : dao) {
+            int i = student.id.toString().length();
+            if (i > len_id) {
+                len_id = i;
+            }
+
+            int n = student.name.length();
+            if (n > len_name) {
+                len_name = n;
+            }
+
+            int e = student.email.length();
+            if (e > len_email) {
+                len_email = e;
+            }
+
+            int r = student.roll_no.toString().length();
+            if (r > len_roll_no) {
+                len_roll_no = r;
+            }
+        }
+
+        System.out.printf("| ID%s | Name%s | Class%s | Roll No.%s | Email%s |%n", 
+            " ".repeat(len_id - _id),
+            " ".repeat(len_name - _name),
+            " ".repeat(0),
+            " ".repeat(len_roll_no - _roll_no),
+            " ".repeat(len_email - _email)
+        );
+
+        System.out.printf("|-%s-|-%s-|-%s-|-%s-|-%s-|%n", 
+            "-".repeat(len_id),
+            "-".repeat(len_name),
+            "-".repeat(_class),
+            "-".repeat(len_roll_no),
+            "-".repeat(len_email)
+        );
+
+        BiFunction<String, Integer, String> format = (val, max) -> val + " ".repeat(max - val.length());
+
+        for (Student student : dao) {
+            System.out.printf("| %s | %s | %s | %s | %s |%n", 
+                format.apply(student.id.toString(), len_id),
+                format.apply(student.name, len_name),
+                format.apply(student._class.toString(), _class),
+                format.apply(student.roll_no.toString(), len_roll_no),
+                format.apply(student.email, len_email)
+            );
+        }
     }
 
     public void create(ConnectionSource connectionSource) throws SQLException {
