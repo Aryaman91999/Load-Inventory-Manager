@@ -125,8 +125,16 @@ public class Issue implements Table {
         if (issue.part == null) {
             return;
         }
+        
+        int total_issued = 0;
 
-        issue.quantity = io.getInteger("Part quantity to issue: ", r -> r <= issue.part.quantity && r > 0,
+        for (Issue i : getDao(connectionSource).queryBuilder().where().gt("return_on", AsDate.asDate(LocalDate.now())).query()) {
+            total_issued += i.quantity;
+        }
+
+        int available = issue.part.quantity - total_issued;
+
+        issue.quantity = io.getInteger("Part quantity to issue: ", r -> r <= available && r > 0,
                 "Please enter a valid amount to issue");
         issue.issued_to = Student.threeWayAdder(connectionSource);
         if (issue.issued_to == null) {
