@@ -26,6 +26,7 @@ public class Student implements Table {
     @DatabaseField(canBeNull = false)
     public String name;
 
+    @Alias(aliases = {"class"})
     @DatabaseField(canBeNull = false, columnName = "class")
     public Integer _class;
 

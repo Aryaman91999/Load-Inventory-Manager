@@ -30,15 +30,18 @@ public class Issue implements Table {
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, columnDefinition = "integer constraint fk_name references part(id) on delete CASCADE")
     public Part part;
 
+    @Alias(aliases = {"student"})
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, columnDefinition = "integer constraint fk_name references student(id) on delete CASCADE")
     public Student issued_to;
 
     @DatabaseField(canBeNull = false)
     public Integer quantity;
 
+    @Alias(aliases = {"issue_date"})
     @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "dd-MM-yyyy")
     public Date issued_on;
 
+    @Alias(aliases = {"return_date"})
     @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "dd-MM-yyyy")
     public Date return_on;
 
@@ -78,7 +81,8 @@ public class Issue implements Table {
         System.out.println("Now, enter the new values: ");
 
         IO io = new IO();
-
+        
+        System.out.printf("Issue to:%n%n");
         issue.issued_to = Student.threeWayAdder(connectionSource);
         issue.part = Part.threeWayAdder(connectionSource);
         issue.quantity = io.getInteger("Part quantity to issue: ");
@@ -97,6 +101,8 @@ public class Issue implements Table {
     public static Issue select(ConnectionSource connectionSource) throws SQLException {
         IO io = new IO();
         int part_id = Part.select(connectionSource).id;
+
+        System.out.printf("Issue to:%n%n");
         int student_id = Student.select(connectionSource).id;
         int quantity = io.getInteger("Quantity: ");
 
@@ -121,6 +127,12 @@ public class Issue implements Table {
         Issue issue = new Issue();
         IO io = new IO();
 
+        System.out.printf("Issue to:%n%n");
+        issue.issued_to = Student.threeWayAdder(connectionSource);
+        if (issue.issued_to == null) {
+            return;
+        }
+
         issue.part = Part.threeWayAdder(connectionSource);
         if (issue.part == null) {
             return;
@@ -136,10 +148,6 @@ public class Issue implements Table {
 
         issue.quantity = io.getInteger("Part quantity to issue: ", r -> r <= available && r > 0,
                 "Please enter a valid amount to issue");
-        issue.issued_to = Student.threeWayAdder(connectionSource);
-        if (issue.issued_to == null) {
-            return;
-        }
 
         issue.return_on = io.getDate("Return on (dd-MM-yyyy): ");
 

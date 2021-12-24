@@ -18,6 +18,7 @@ public class Category implements Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     private Integer id;
 
+    @Alias(aliases = {"category"})
     @DatabaseField(canBeNull = false, unique = true)
     public String name;
 
