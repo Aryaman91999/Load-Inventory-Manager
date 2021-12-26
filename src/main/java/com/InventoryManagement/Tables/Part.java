@@ -10,7 +10,15 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvRecurse;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -21,15 +29,19 @@ import static com.InventoryManagement.Format.*;
 public class Part extends Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public Integer id;
-
+    
+    @CsvBindByName
+    @DatabaseField(canBeNull = false, unique = true)
+    public String name;
+    
+    @CsvBindByName
     @DatabaseField(canBeNull = false)
     public Integer quantity;
 
+    @CsvRecurse
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
     public Category category;
 
-    @DatabaseField(canBeNull = false, unique = true)
-    public String name;
 
     public Part() {
 
@@ -214,5 +226,32 @@ public class Part extends Table {
         List<Part> res = where.query();
         System.out.printf("Total %d results%n", res.size());
         Load.list(res);
+    }
+
+    @Override
+    public void load(ConnectionSource connectionSource, String csv) throws NoSuchMethodException, SQLException {
+        try {
+            Reader reader = new BufferedReader(new FileReader(csv));
+            CsvToBean<Part> csvToBean = new CsvToBeanBuilder<Part>(reader)
+            .withType(Part.class)
+            .withSeparator(',')
+            .withIgnoreLeadingWhiteSpace(true)
+            .withIgnoreEmptyLine(true)
+            .build();
+
+            List<Part> parts = csvToBean.parse();
+
+            for (Part part : parts) {
+                Category cat = new Category().getDao(connectionSource).queryBuilder().where().like("name", part.category.name).queryForFirst();
+                if (cat != null) {
+                    part.category = cat;
+                }
+
+                System.out.printf(colorize("Adding part %s", SUCCESS), part.name);
+                part.create(connectionSource);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println(colorize("Could not find file because it does not exist", ERROR));
+        }
     }
 }

@@ -11,7 +11,14 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -24,15 +31,19 @@ public class Student extends Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public Integer id;
 
+    @CsvBindByName
     @DatabaseField(canBeNull = false)
     public String name;
 
+    @CsvBindByName(column = "class")
     @DatabaseField(canBeNull = false, columnName = "class")
     public Integer _class;
 
+    @CsvBindByName
     @DatabaseField(canBeNull = false)
     public Integer roll_no;
 
+    @CsvBindByName
     @DatabaseField(canBeNull = false)
     public String email;
 
@@ -234,5 +245,27 @@ public class Student extends Table {
         List<Student> res = where.query();
         System.out.printf("total %d results%n", res.size());
         Load.list(res);
+    }
+
+    @Override
+    public void load(ConnectionSource connectionSource, String csv) throws NoSuchMethodException, SQLException {
+        try {
+            Reader reader = new BufferedReader(new FileReader(csv));
+            CsvToBean<Student> csvToBean = new CsvToBeanBuilder<Student>(reader)
+            .withType(Student.class)
+            .withSeparator(',')
+            .withIgnoreLeadingWhiteSpace(true)
+            .withIgnoreEmptyLine(true)
+            .build();
+
+            List<Student> students = csvToBean.parse();
+
+            for (Student student : students) {
+                System.out.printf(colorize("Adding student %s", SUCCESS), student.name);
+                student.create(connectionSource);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println(colorize("Could not find file because it does not exist", ERROR));
+        }
     }
 }

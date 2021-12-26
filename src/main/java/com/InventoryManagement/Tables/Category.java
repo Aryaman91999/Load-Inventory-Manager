@@ -8,6 +8,7 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
+import com.opencsv.bean.CsvBindByName;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -19,6 +20,7 @@ public class Category extends Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     private Integer id;
 
+    @CsvBindByName(column = "category_name")
     @DatabaseField(canBeNull = false, unique = true)
     public String name;
 

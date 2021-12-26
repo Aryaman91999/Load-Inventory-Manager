@@ -60,5 +60,15 @@ public abstract class Table {
      */
     public abstract void filter(ConnectionSource connectionSource) throws SQLException;
 
+    /**
+     * get the ORMLite dao for the object
+     * @param connectionSource connection to the database
+     * @return
+     * @throws SQLException
+     */
     public abstract Dao<? extends Table, Integer> getDao(ConnectionSource connectionSource) throws SQLException;
+
+    public void load(ConnectionSource connectionSource, String csv) throws NoSuchMethodException, SQLException {
+        throw new NoSuchMethodException("Load cannot be used on this object");
+    }
 }

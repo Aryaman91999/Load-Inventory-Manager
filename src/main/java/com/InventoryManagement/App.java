@@ -81,6 +81,9 @@ public class App {
         if (commandLine.hasOption("f")) {
             mod = 'f';
         }
+        if (commandLine.hasOption("L")) {
+            mod = 'L';
+        }
         if (commandLine.hasOption("H")) {
             Statistics.history(IniManager.getDB());
             System.exit(0);
@@ -113,14 +116,20 @@ public class App {
                 case 'e' -> func = "edit";
                 case 'l' -> func = "list";
                 case 'f' -> func = "filter";
+                case 'L' -> func = "load";
             }
 
             ConnectionSource db = IniManager.getDB();
 
             try {
+                if (mod == 'L') {
+                    model.getMethod(func, ConnectionSource.class, String.class).invoke(model.getConstructor().newInstance(), db, commandLine.getOptionValues("L")[1]);
+                    return;
+                }
                 model.getMethod(func, ConnectionSource.class).invoke(model.getConstructor().newInstance(), db);
             } catch (InvocationTargetException e) {
                 if (e.getCause() instanceof SQLException) {
+                    e.printStackTrace();
                     System.out.println("SQL Error: " + e.getMessage());
                 } else {
                     e.printStackTrace();

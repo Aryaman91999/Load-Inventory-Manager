@@ -58,6 +58,16 @@ public class ArgManager {
                                 .desc("set flag to list things")
                                 .build();
 
+                final Option load = Option.builder("L")
+                                .required(false)
+                                .hasArg(true)
+                                .numberOfArgs(2)
+                                .optionalArg(false)
+                                .argName("<OBJECT> <CSV FILE>")
+                                .longOpt("load")
+                                .desc("set flag to load things")
+                                .build();
+
                 final Option filter = Option.builder("f")
                                 .required(false)
                                 .hasArg(true)
@@ -99,6 +109,7 @@ public class ArgManager {
                 options.addOption(edit);
                 options.addOption(list);
                 options.addOption(filter);
+                options.addOption(load);
                 return options;
         }
 }
