@@ -58,6 +58,15 @@ public class ArgManager {
                                 .desc("set flag to list things")
                                 .build();
 
+                final Option filter = Option.builder("f")
+                                .required(false)
+                                .hasArg(true)
+                                .optionalArg(false)
+                                .argName("object to filter")
+                                .longOpt("filter")
+                                .desc("set flag to filter things")
+                                .build();
+
                 final Option history = Option.builder("H")
                                 .required(false)
                                 .hasArg(false)
@@ -89,6 +98,7 @@ public class ArgManager {
                 options.addOption(totalStock);
                 options.addOption(edit);
                 options.addOption(list);
+                options.addOption(filter);
                 return options;
         }
 }

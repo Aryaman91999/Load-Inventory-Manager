@@ -78,6 +78,9 @@ public class App {
         if (commandLine.hasOption("e")) {
             mod = 'e';
         }
+        if (commandLine.hasOption("f")) {
+            mod = 'f';
+        }
         if (commandLine.hasOption("H")) {
             Statistics.history(IniManager.getDB());
             System.exit(0);
@@ -90,7 +93,9 @@ public class App {
         }
         if (commandLine.hasOption("t")) {
             Statistics.totalStock(IniManager.getDB());
-        }
+            System.exit(0);
+            return;
+         } 
 
         if (mod != ' ') {
             Class<?> model = null;
@@ -107,6 +112,7 @@ public class App {
                 case 'r' -> func = "remove";
                 case 'e' -> func = "edit";
                 case 'l' -> func = "list";
+                case 'f' -> func = "filter";
             }
 
             ConnectionSource db = IniManager.getDB();

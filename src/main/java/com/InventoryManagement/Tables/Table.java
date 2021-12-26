@@ -2,19 +2,27 @@ package com.InventoryManagement.Tables;
 
 import java.sql.SQLException;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 
 /*
-All tables must implement this interface
+All tables must extend this class
 contains basic methods needed for any table
 */
-public interface Table {
+public abstract class Table {
+    /**
+     * Empty constructor for ORMLite
+     */
+    public Table() {
+
+    };
+
     /**
      * method to add a row to the table
      * @param connectionSource connection to the database
      * @throws SQLException
      */
-    public void add(ConnectionSource connectionSource) throws SQLException;
+    public abstract void add(ConnectionSource connectionSource) throws SQLException;
 
 
     /**
@@ -22,26 +30,35 @@ public interface Table {
      * @param connectionSource connection to the database
      * @throws SQLException
      */
-    public void remove(ConnectionSource connectionSource) throws SQLException;
+    public abstract void remove(ConnectionSource connectionSource) throws SQLException;
 
     /**
      * method to edit a row in the table
      * @param connectionSource connection to the database
      * @throws SQLException
      */
-    public void edit(ConnectionSource connectionSource) throws SQLException;
+    public abstract void edit(ConnectionSource connectionSource) throws SQLException;
 
     /**
      * method to list all rows in tabular or list format
      * @param connectionSource connection to the database
      * @throws SQLException
      */
-    public void list(ConnectionSource connectionSource) throws SQLException;
+    public abstract void list(ConnectionSource connectionSource) throws SQLException;
 
     /**
      * method to create the current object
      * @param connectionSource connection to the database
      * @throws SQLException
      */
-    public void create(ConnectionSource connectionSource) throws SQLException;
+    public abstract void create(ConnectionSource connectionSource) throws SQLException;
+
+    /**
+     * method to filter the current objet
+     * @param connectionSource connect to the database
+     * @throws SQLException
+     */
+    public abstract void filter(ConnectionSource connectionSource) throws SQLException;
+
+    public abstract Dao<? extends Table, Integer> getDao(ConnectionSource connectionSource) throws SQLException;
 }

@@ -1,7 +1,5 @@
 package com.InventoryManagement;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
@@ -18,7 +16,7 @@ public class IO {
     }
 
     public int getInteger(String prompt) {
-        return getInteger(prompt, null, null);
+        return getInteger(prompt, (r) -> r > 0, "No negatives allowed!");
     }
 
     public int getInteger(String prompt, Function<Integer, Boolean> validator, String msg) {
@@ -34,11 +32,6 @@ public class IO {
                 System.out.print(prompt);
             }
             r = scanner.nextInt();
-
-            if (r < 0) {
-                System.out.println(colorize("No negatives allowed!", RED_TEXT()));
-                continue;
-            }
 
             if (validator != null) {
                 if (validator.apply(r)) {
@@ -88,8 +81,7 @@ public class IO {
     public Date getDate(String prompt) {
         CheckDate c = new CheckDate();
         String in = getString(prompt, c::check);
-        DateTimeFormatter d = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        return AsDate.asDate(LocalDate.parse(in, d));
+        return AsDate.asDate(in);
     }
 }
 

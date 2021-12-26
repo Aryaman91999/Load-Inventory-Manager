@@ -1,23 +1,24 @@
 package com.InventoryManagement.Tables;
 
+import com.InventoryManagement.Filter;
 import com.InventoryManagement.IO;
 import com.InventoryManagement.Pair;
 import com.InventoryManagement.Tables.IssueDao.IssueDao;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.function.BiFunction;
 
 import static com.diogonunes.jcolor.Ansi.colorize;
 import static com.InventoryManagement.Format.*;
 
 @DatabaseTable()
-public class Part implements Table {
+public class Part extends Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public Integer id;
 
@@ -63,7 +64,7 @@ public class Part implements Table {
         IO io = new IO();
 
         if (io.getBoolean("Are you sure you want to delete this part? This will delete related issue requests too") && part != null) {
-            IssueDao dao = Issue.getDao(connectionSource);
+            IssueDao dao = new Issue().getDao(connectionSource);
             dao.delete(dao.queryBuilder().where().eq("part_id", part.id).query());
             getDao(connectionSource).delete(part);
         }
@@ -96,65 +97,15 @@ public class Part implements Table {
         
         if (dao.countOf() == 0) {
             System.out.println("There are no parts in the database");
+            return;
         }
 
         System.out.printf("Total %d parts", dao.countOf());
-
-        int _name = "name".length();
-        int _quantity = "quantity".length();
-        int _category = "category".length();
-        int _id = 2;
-
-        int len_name = "name".length();
-        int len_quantity = "quantity".length();
-        int len_category = "category".length();
-        int len_id = 2;
-
-
-        for (Part part : dao) {
-            int n = part.name.length();
-            if (len_name < n) {
-                len_name = n;
-            }
-
-            int q = part.quantity.toString().length();
-            if (len_quantity < q) {
-                len_quantity = q;
-            }
-
-            int c = part.category.name.length();
-            if (len_category < c) {
-                len_category = c;
-            }
-
-            int i = part.id.toString().length();
-            if (len_id < i) {
-                len_id = i;
-            }
-        }
-
-        BiFunction<String, Integer, String> format = (val, max) -> val + " ".repeat(max - val.length());
-
-        System.out.printf("| ID%s | Name%s | Quantity%s | Category%s |%n", 
-            " ".repeat(len_id - _id),
-            " ".repeat(len_name - _name),
-            " ".repeat(len_quantity - _quantity),
-            " ".repeat(len_category - _category)
-        );
-
-        System.out.printf("|-%s-|-%s-|-%s-|-%s-|%n", "-".repeat(len_id), "-".repeat(len_name), "-".repeat(len_quantity), "-".repeat(len_category));
-
-        for (Part part : dao) {
-            System.out.printf("| %s | %s | %s | %s |%n",
-                format.apply(part.id.toString(), len_id),
-                format.apply(part.name, len_name),
-                format.apply(part.quantity.toString(), len_quantity),
-                format.apply(part.category.name, len_category)
-            );
-        }
+        
+        Filter.list(dao.queryForAll());
     }
 
-    private static Dao<Part, Integer> getDao(ConnectionSource connectionSource) throws SQLException {
+    public Dao<Part, Integer> getDao(ConnectionSource connectionSource) throws SQLException {
         return DaoManager.createDao(connectionSource, Part.class);
     }
 
@@ -193,7 +144,7 @@ public class Part implements Table {
     private static Pair<Part, String> _select(ConnectionSource connectionSource) throws SQLException {
         IO io = new IO();
 
-        Dao<Part, Integer> dao = getDao(connectionSource);
+        Dao<Part, Integer> dao = new Part().getDao(connectionSource);
 
         String name = io.getString("Part name: ");
 
@@ -220,5 +171,48 @@ public class Part implements Table {
         } else {
             return new Pair<Part, String>(parts.get(0), name);
         }
+    }
+
+    @Override
+    public void filter(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Filter parts%n%n", HEADING));
+        System.out.println("Enter \"*\" for no filtering on a field");
+
+        int where_num = 0;
+        Where<Part, Integer> where = getDao(connectionSource).queryBuilder().where();
+
+        IO io = new IO();
+
+        String name = io.getString("Part name: ");
+        if (!name.equals("*")) {
+            where.like("name", name);
+        }
+
+        Integer quantity = io.getInteger("Part quantity (-1 for no filtering): ");
+        if (quantity != -1) {
+            if (where_num >= 1) {
+                where.and();
+            }
+            where.eq("quantity", quantity);
+            where_num++;
+        }
+
+        String category = io.getString("Category: ");
+        if (!category.equals("*")) {
+            if (where_num >= 1) {
+                where.and();
+            }
+            where.in("category_id", new Category().getDao(connectionSource).queryBuilder().where().like("name", "%" + category + "%"));
+            where_num++;
+        }
+
+        if (where_num == 0) {
+            list(connectionSource);
+            return;
+        }
+
+        List<Part> res = where.query();
+        System.out.printf("Total %d results%n", res.size());
+        Filter.list(res);
     }
 }

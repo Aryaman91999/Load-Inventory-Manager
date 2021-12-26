@@ -2,6 +2,7 @@ package com.InventoryManagement.Tables;
 
 import com.InventoryManagement.Tables.IssueDao.*;
 import com.InventoryManagement.AsDate;
+import com.InventoryManagement.Filter;
 import com.InventoryManagement.IO;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.Where;
@@ -10,40 +11,55 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.nio.file.AccessDeniedException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
 import static com.diogonunes.jcolor.Ansi.colorize;
 import static com.InventoryManagement.Format.*;
-import static com.diogonunes.jcolor.Attribute.*;
 
 /**
  * Model for the issue object
  * Fields: id, part, issued_to, quantity, issued_on, return_on
  */
 @DatabaseTable(daoClass = IssueDaoImpl.class)
-public class Issue implements Table {
+public class Issue extends Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public Integer id;
 
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, columnDefinition = "integer constraint fk_name references part(id) on delete CASCADE")
     public Part part;
 
-    @Alias(aliases = {"student"})
+    @Alias(aliases = { "student" })
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, columnDefinition = "integer constraint fk_name references student(id) on delete CASCADE")
     public Student issued_to;
 
     @DatabaseField(canBeNull = false)
     public Integer quantity;
 
-    @Alias(aliases = {"issue_date"})
-    @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "dd-MM-yyyy")
+    @Alias(aliases = { "issue_date" })
+    @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "yyyy-MM-dd")
     public Date issued_on;
 
-    @Alias(aliases = {"return_date"})
-    @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "dd-MM-yyyy")
+    @Alias(aliases = { "return_date" })
+    @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "yyyy-MM-dd")
     public Date return_on;
+
+    @QueryString
+    @DatabaseField(persisted = false, useGetSet = true)
+    public static String returned = "date(return_on) > date('now','localtime')";
+
+    public String getReturned() {
+        return this.return_on.after(AsDate.asDate(LocalDate.now())) ? "Yes" : "No";
+    }
+
+    public void setReturned(String returned) throws AccessDeniedException {
+        throw new AccessDeniedException("You cannot set returned.");
+    }
 
     public Issue() {
 
@@ -81,7 +97,7 @@ public class Issue implements Table {
         System.out.println("Now, enter the new values: ");
 
         IO io = new IO();
-        
+
         System.out.printf("Issue to:%n%n");
         issue.issued_to = Student.threeWayAdder(connectionSource);
         issue.part = Part.threeWayAdder(connectionSource);
@@ -94,7 +110,7 @@ public class Issue implements Table {
         System.out.printf(colorize("%nIssue edited successfully%n", SUCCESS));
     }
 
-    public static IssueDao getDao(ConnectionSource connectionSource) throws SQLException {
+    public IssueDao getDao(ConnectionSource connectionSource) throws SQLException {
         return DaoManager.createDao(connectionSource, Issue.class);
     }
 
@@ -108,7 +124,7 @@ public class Issue implements Table {
 
         Date issued_on = io.getDate("Issued On: (dd-MM-yyyy): ");
 
-        IssueDao dao = getDao(connectionSource);
+        IssueDao dao = new Issue().getDao(connectionSource);
         Where<Issue, Integer> where = dao.queryBuilder().where();
 
         // equality checks for all the values
@@ -137,10 +153,11 @@ public class Issue implements Table {
         if (issue.part == null) {
             return;
         }
-        
+
         int total_issued = 0;
 
-        for (Issue i : getDao(connectionSource).queryBuilder().where().gt("return_on", AsDate.asDate(LocalDate.now())).query()) {
+        for (Issue i : getDao(connectionSource).queryBuilder().where().gt("return_on", AsDate.asDate(LocalDate.now()))
+                .query()) {
             total_issued += i.quantity;
         }
 
@@ -163,7 +180,7 @@ public class Issue implements Table {
         System.out.printf(colorize("%nIssue successfully added%n", SUCCESS));
     }
 
-    public void list(ConnectionSource connectionSource) throws SQLException  {
+    public void list(ConnectionSource connectionSource) throws SQLException {
         System.out.printf(colorize("All issue requests%n%n", HEADING));
 
         IssueDao dao = getDao(connectionSource);
@@ -173,70 +190,89 @@ public class Issue implements Table {
             return;
         }
 
-        System.out.printf("%d total issue requests, %d active.%n", dao.countOf(), dao.queryBuilder().where().gt("return_on", AsDate.asDate(LocalDate.now())).countOf());
-        
-        System.out.println(colorize("  ", RED_BACK()) + " = active issue request");
-        // print the list of all the issues in tabular format
+        System.out.printf("%d total issue requests, %d active.%n", dao.countOf(),
+                dao.queryBuilder().where().gt("return_on", AsDate.asDate(LocalDate.now())).countOf());
 
-        int len_part = "part".length(); // not 0 because we need space for the headers of the table
-        int len_quantity = "quantity".length();
-        int len_student = "issued to".length();
-        int len_id = 2;
+        Filter.list(dao.queryForAll());
+    }
 
-        // format = dd-MM-yyyy
-        final int len_date = 10;
+    @Override
+    public void filter(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Filter issues%n%n", HEADING));
+        System.out.println("Enter \"*\" for no filtering on a field");
 
-        // calculate the maximum lengths for each field
-        for (Issue issue : dao) {
-            int part = issue.part.name.length();
-            if (part > len_part) {
-                len_part = part;
-            }
+        int where_num = 0;
 
-            int quan = issue.quantity.toString().length();
-            if (quan > len_quantity) {
-                len_quantity = quan;
-            }
+        Where<Issue, Integer> where = getDao(connectionSource).queryBuilder().where();
 
-            int student = issue.issued_to.name.length();
-            if (student > len_student) {
-                len_student = student;
-            }
-
-            int id = issue.id.toString().length();
-            if (id > len_id) {
-                len_id = id;
-            }
+        IO io = new IO();
+        String part = io.getString("Part name: ");
+        if (!part.equals("*")) {
+            where.in("part_id",
+                    new Part().getDao(connectionSource).queryBuilder().where().like("name", "%" + part + "%").query());
+            where_num++;
         }
 
-        System.out.printf("| ID%s | Part%s | Issued to%s | Quantity%s | Issued On%s | Return On%s |%n",
-                " ".repeat(len_id - 2),
-                " ".repeat(len_part - "Part".length()),
-                " ".repeat(len_student - "Issued to".length()),
-                " ".repeat(len_quantity - "Quantity".length()),
-                " ".repeat(len_date - "Issued On".length()),
-                " ".repeat(len_date - "Return On".length()));
-
-        System.out.printf("|-%s-|-%s-|-%s-|-%s-|-%s-|-%s-|%n", "-".repeat(len_id), "-".repeat(len_part), "-".repeat(len_student), "-".repeat(len_quantity), "-".repeat(len_date), "-".repeat(len_date));
-
-        for (Issue issue : dao) {
-            String id = issue.id.toString();
-            String student = issue.issued_to.name;
-            String part = issue.part.name;
-            String quantity = issue.quantity.toString();
-            String issued_on = AsDate.toString(issue.issued_on);
-            String return_on = AsDate.toString(issue.return_on);
-        
-
-            System.out.printf(colorize("| %s | %s | %s | %s | %s | %s |", issue.return_on.after(AsDate.asDate(LocalDate.now())) ? RED_BACK() : NONE()) + "%n", 
-                id + " ".repeat(len_id - id.length()),
-                part + " ".repeat(len_part - part.length()),
-                student + " ".repeat(len_student - student.length()),
-                quantity + " ".repeat(len_quantity - quantity.length()),
-                issued_on + " ".repeat(len_date - issued_on.length()),
-                return_on + " ".repeat(len_date - return_on.length())
-            );
-
+        String student = io.getString("Student name: ");
+        if (!student.equals("*")) {
+            if (where_num >= 1) {
+                where.and();
+            }
+            where.in("issued_to_id",
+                    new Student().getDao(connectionSource).queryBuilder().where().like("name", "%" + student + "%"));
+            where_num++;
         }
+
+        int quantity = io.getInteger("Quantity issued (-1 for no filtering): ", null, null);
+        if (quantity != -1) {
+            if (where_num >= 1) {
+                where.and();
+            }
+            where.eq("quantity", quantity);
+            where_num++;
+        }
+
+        String date = io.getString("Issued On: ");
+        if (!date.equals("*")) {
+            if (where_num >= 1) {
+                where.and();
+            }
+            where.raw("date(issued_on) = date(" + AsDate.toString(AsDate.asDate(date, "yyyy-MM-dd"), "yyyy-MM-dd") + ")");
+            where_num++;
+        }
+
+        String ret = io.getString("Return On: ");
+        if (!ret.equals("*")) {
+            if (where_num >= 1) {
+                where.and();
+            }
+            where.raw("date(return_on) = date(" + AsDate.toString(AsDate.asDate(ret), "yyyy-MM-dd") + ")");
+            where_num++;
+        }
+
+        String returned = io.getString("Returned? (y/n) ",
+                s -> Arrays.asList("y", "yes", "n", "no", "*").contains(s.toLowerCase()) // lazy way of checking if input is
+                                                                                    // valid
+        ).toLowerCase();
+        if (!returned.equals("*")) {
+            if (where_num >= 1) {
+                where.and();
+            }
+            if (Arrays.asList("y", "yes").contains(returned)) {
+                where.raw(Issue.returned);
+            } else {
+                where.raw("NOT " + Issue.returned);
+            }
+            where_num++;
+        }
+
+        if (where_num == 0) {
+            list(connectionSource);
+            return;
+        }
+
+        List<Issue> res = where.query();
+        System.out.printf("Total %d results%n");
+        Filter.list(res);
     }
 }

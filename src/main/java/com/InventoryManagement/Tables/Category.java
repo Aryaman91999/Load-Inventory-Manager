@@ -1,5 +1,6 @@
 package com.InventoryManagement.Tables;
 
+import com.InventoryManagement.Filter;
 import com.InventoryManagement.IO;
 import com.InventoryManagement.Pair;
 import com.j256.ormlite.dao.Dao;
@@ -14,7 +15,7 @@ import static com.diogonunes.jcolor.Ansi.colorize;
 import static com.InventoryManagement.Format.*;
 
 @DatabaseTable()
-public class Category implements Table {
+public class Category extends Table {
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     private Integer id;
 
@@ -30,7 +31,7 @@ public class Category implements Table {
         this.name = name;
     }
 
-    public static Dao<Category, Integer> getDao(ConnectionSource connectionSource) throws SQLException {
+    public Dao<Category, Integer> getDao(ConnectionSource connectionSource) throws SQLException {
         return DaoManager.createDao(connectionSource, Category.class);
     }
 
@@ -78,7 +79,7 @@ public class Category implements Table {
         IO io = new IO();
         String name = io.getString("Category: ");
 
-        Dao<Category, Integer> dao = getDao(connectionSource);
+        Dao<Category, Integer> dao = new Category().getDao(connectionSource);
 
         List<Category> categories = dao.queryBuilder().where().like("name", "%" + name + "%").query();
         if (categories.size() > 1) {
@@ -126,7 +127,6 @@ public class Category implements Table {
         return p.getFirst();
     }
 
-    @Override
     public void edit(ConnectionSource connectionSource) throws SQLException {
         System.out.printf(colorize("Edit a category %n%n", HEADING));
         
@@ -141,15 +141,16 @@ public class Category implements Table {
         System.out.printf(colorize("%nSuccessfully edited%n", SUCCESS));
     }
 
-    @Override
     public void list(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("List of all categories%n%n", HEADING));
+        Filter.list(getDao(connectionSource).queryForAll());  
+    }
 
-        Dao<Category, Integer> dao = getDao(connectionSource);
-        System.out.printf("Total %d categories.%n", dao.countOf());
+    @Override
+    public void filter(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Filter categories%n%n", HEADING));
+        IO io = new IO();
 
-        for (Category category : dao.queryBuilder().orderBy("id", true).query()) {
-            System.out.printf("%d. %s", category.id, category.name);
-        }                
+        String cat = io.getString("Category Name: ");
+        Filter.list(getDao(connectionSource).queryBuilder().where().like("name", "%" + cat + "%").query());
     }
 }
