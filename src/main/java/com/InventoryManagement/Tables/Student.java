@@ -27,7 +27,6 @@ public class Student extends Table {
     @DatabaseField(canBeNull = false)
     public String name;
 
-    @Alias(aliases = { "class" })
     @DatabaseField(canBeNull = false, columnName = "class")
     public Integer _class;
 
@@ -199,7 +198,7 @@ public class Student extends Table {
                 where.and();
             }
 
-            where.eq("_class", _class);
+            where.eq("class", _class);
             where_num++;
         }
 
@@ -213,8 +212,13 @@ public class Student extends Table {
             where_num++;
         }
 
-        String email = io.getString("Student Email: ", new ValidateEmail()::validate);
+        String email = io.getString("Student Email: ");
         if (!email.equals("*")) {
+            if (!new ValidateEmail().validate(email)) {
+                System.out.println(colorize("Invalid error", ERROR));
+                return;
+            }
+
             if (where_num >= 1) {
                 where.and();
             }

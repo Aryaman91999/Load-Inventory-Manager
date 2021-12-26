@@ -34,22 +34,18 @@ public class Issue extends Table {
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, columnDefinition = "integer constraint fk_name references part(id) on delete CASCADE")
     public Part part;
 
-    @Alias(aliases = { "student" })
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, columnDefinition = "integer constraint fk_name references student(id) on delete CASCADE")
     public Student issued_to;
 
     @DatabaseField(canBeNull = false)
     public Integer quantity;
 
-    @Alias(aliases = { "issue_date" })
     @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "yyyy-MM-dd")
     public Date issued_on;
 
-    @Alias(aliases = { "return_date" })
     @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "yyyy-MM-dd")
     public Date return_on;
 
-    @QueryString
     @DatabaseField(persisted = false, useGetSet = true)
     public static String returned = "date(return_on) > date('now','localtime')";
 

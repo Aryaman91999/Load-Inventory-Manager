@@ -188,7 +188,7 @@ public class Part extends Table {
             where.like("name", name);
         }
 
-        Integer quantity = io.getInteger("Part quantity (-1 for no filtering): ");
+        Integer quantity = io.getInteger("Part quantity (-1 for no filtering): ", null, null);
         if (quantity != -1) {
             if (where_num >= 1) {
                 where.and();
@@ -202,7 +202,7 @@ public class Part extends Table {
             if (where_num >= 1) {
                 where.and();
             }
-            where.in("category_id", new Category().getDao(connectionSource).queryBuilder().where().like("name", "%" + category + "%"));
+            where.in("category_id", new Category().getDao(connectionSource).queryBuilder().where().like("name", "%" + category + "%").query());
             where_num++;
         }
 
