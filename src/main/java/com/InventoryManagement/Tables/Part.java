@@ -1,6 +1,6 @@
 package com.InventoryManagement.Tables;
 
-import com.InventoryManagement.Filter;
+import com.InventoryManagement.Load;
 import com.InventoryManagement.IO;
 import com.InventoryManagement.Pair;
 import com.InventoryManagement.Tables.IssueDao.IssueDao;
@@ -102,7 +102,7 @@ public class Part extends Table {
 
         System.out.printf("Total %d parts", dao.countOf());
         
-        Filter.list(dao.queryForAll());
+        Load.list(dao.queryForAll());
     }
 
     public Dao<Part, Integer> getDao(ConnectionSource connectionSource) throws SQLException {
@@ -213,6 +213,6 @@ public class Part extends Table {
 
         List<Part> res = where.query();
         System.out.printf("Total %d results%n", res.size());
-        Filter.list(res);
+        Load.list(res);
     }
 }

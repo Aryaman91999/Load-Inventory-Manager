@@ -2,7 +2,7 @@ package com.InventoryManagement.Tables;
 
 import com.InventoryManagement.Tables.IssueDao.*;
 import com.InventoryManagement.AsDate;
-import com.InventoryManagement.Filter;
+import com.InventoryManagement.Load;
 import com.InventoryManagement.IO;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.Where;
@@ -189,7 +189,7 @@ public class Issue extends Table {
         System.out.printf("%d total issue requests, %d active.%n", dao.countOf(),
                 dao.queryBuilder().where().gt("return_on", AsDate.asDate(LocalDate.now())).countOf());
 
-        Filter.list(dao.queryForAll());
+        Load.list(dao.queryForAll());
     }
 
     @Override
@@ -269,6 +269,6 @@ public class Issue extends Table {
 
         List<Issue> res = where.query();
         System.out.printf("Total %d results%n");
-        Filter.list(res);
+        Load.list(res);
     }
 }

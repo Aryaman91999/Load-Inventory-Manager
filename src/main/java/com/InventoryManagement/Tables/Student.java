@@ -1,6 +1,6 @@
 package com.InventoryManagement.Tables;
 
-import com.InventoryManagement.Filter;
+import com.InventoryManagement.Load;
 import com.InventoryManagement.IO;
 import com.InventoryManagement.Pair;
 import com.InventoryManagement.ValidateEmail;
@@ -107,7 +107,7 @@ public class Student extends Table {
 
         System.out.printf("Total %d students%n", dao.countOf());
 
-        Filter.list(dao.queryForAll());
+        Load.list(dao.queryForAll());
     }
 
     public void create(ConnectionSource connectionSource) throws SQLException {
@@ -233,6 +233,6 @@ public class Student extends Table {
 
         List<Student> res = where.query();
         System.out.printf("total %d results%n", res.size());
-        Filter.list(res);
+        Load.list(res);
     }
 }

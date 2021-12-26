@@ -1,6 +1,6 @@
 package com.InventoryManagement.Tables;
 
-import com.InventoryManagement.Filter;
+import com.InventoryManagement.Load;
 import com.InventoryManagement.IO;
 import com.InventoryManagement.Pair;
 import com.j256.ormlite.dao.Dao;
@@ -141,7 +141,7 @@ public class Category extends Table {
     }
 
     public void list(ConnectionSource connectionSource) throws SQLException {
-        Filter.list(getDao(connectionSource).queryForAll());  
+        Load.list(getDao(connectionSource).queryForAll());  
     }
 
     @Override
@@ -150,6 +150,6 @@ public class Category extends Table {
         IO io = new IO();
 
         String cat = io.getString("Category Name: ");
-        Filter.list(getDao(connectionSource).queryBuilder().where().like("name", "%" + cat + "%").query());
+        Load.list(getDao(connectionSource).queryBuilder().where().like("name", "%" + cat + "%").query());
     }
 }
