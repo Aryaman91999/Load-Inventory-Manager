@@ -109,6 +109,7 @@ public class App {
                 case "student" -> model = Student.class;
                 case "part" -> model = Part.class;
                 case "issue" -> model = Issue.class;
+                default -> System.out.printf(colorize("No such object: %s", RED_TEXT()), commandLine.getOptionValue(mod));
             }
 
             switch (mod) {

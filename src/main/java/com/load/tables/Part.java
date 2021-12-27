@@ -65,29 +65,39 @@ public class Part extends Table {
 
         part.create(connectionSource);
 
-        System.out.println(colorize("%nPart successfully added%n", SUCCESS));
+        System.out.printf(colorize("%nPart successfully added%n", SUCCESS));
     }
 
     public void remove(ConnectionSource connectionSource) throws SQLException {
-        System.out.println(colorize("Remove a part", HEADING));
+        System.out.printf(colorize("Remove a part%n%n", HEADING));
 
         Part part = select(connectionSource);
+
+        if (part == null) {
+            System.out.println("Part not found");
+            return;
+        }
         
         IO io = new IO();
 
-        if (io.getBoolean("Are you sure you want to delete this part? This will delete related issue requests too") && part != null) {
+        if (io.getBoolean("Are you sure you want to delete this part? This will delete related issue requests too (y/n) ") && part != null) {
             IssueDao dao = new Issue().getDao(connectionSource);
             dao.delete(dao.queryBuilder().where().eq("part_id", part.id).query());
             getDao(connectionSource).delete(part);
         }
 
-        System.out.printf(colorize("%nPart successfully removed%n"));
+        System.out.printf(colorize("%nPart successfully removed%n", SUCCESS));
     }
 
     public void edit(ConnectionSource connectionSource) throws SQLException {
         System.out.printf(colorize("Edit a part%n%n", HEADING));
 
         Part part = select(connectionSource);
+
+        if (part == null) {
+            System.out.println("Part not found");
+            return;
+        }
 
         IO io = new IO();
         System.out.println("Now, enter the new values: ");
@@ -112,7 +122,7 @@ public class Part extends Table {
             return;
         }
 
-        System.out.printf("Total %d parts", dao.countOf());
+        System.out.printf("Total %d parts%n", dao.countOf());
         
         ListObject.list(dao.queryForAll());
     }
@@ -162,22 +172,23 @@ public class Part extends Table {
 
         // where name = %name%
         // % for wildcard
-        List<Part> parts = dao.queryBuilder().where().like("name", "%" + name).query();
+        List<Part> parts = dao.queryBuilder().where().like("name", "%" + name + "%").query();
 
         if (parts.size() == 0) {
             return new Pair<Part, String>(null, name);
         } else if (parts.size() > 1) {
-            System.out.printf("Multiple results found for \"%s\"", name);
+            System.out.printf("Multiple results found for \"%s\":%n", name);
             
             int i  = 1;
 
             for (Part part : parts) {
                 System.out.printf("%d. %s%n", i, part.print());
+                i++;
             }
 
             // get integer with validation of range
             int idx = io.getInteger("Which one did you mean?",
-                    (r) ->  r > 0 && r >= parts.size() + 1, "Number must be in the range of options.");
+                    (r) ->  r > 0 && r <= parts.size(), "Number must be in the range of options.");
 
             return new Pair<Part, String>(parts.get(idx-1), name);
         } else {

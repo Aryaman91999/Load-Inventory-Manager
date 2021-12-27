@@ -76,6 +76,12 @@ public class Issue extends Table {
         System.out.printf(colorize("Remove an issue%n%n", HEADING));
 
         Issue issue = select(connectionSource);
+
+        if (issue == null) {
+            System.out.println("Issue not found");
+            return;
+        }
+
         IO io = new IO();
         if (io.getBoolean("Are you sure you want to remove this issue? ") && issue != null) {
             getDao(connectionSource).delete(issue);
@@ -89,6 +95,11 @@ public class Issue extends Table {
 
         System.out.println("First, enter the current values of the issue you want to edit: ");
         Issue issue = select(connectionSource);
+
+        if (issue == null) {
+            System.out.println("Issue not found");
+            return;
+        }
 
         System.out.println("Now, enter the new values: ");
 
@@ -113,8 +124,7 @@ public class Issue extends Table {
     public static Issue select(ConnectionSource connectionSource) throws SQLException {
         IO io = new IO();
         int part_id = Part.select(connectionSource).id;
-
-        System.out.printf("Issue to:%n%n");
+        
         int student_id = Student.select(connectionSource).id;
         int quantity = io.getInteger("Quantity: ");
 
@@ -139,7 +149,6 @@ public class Issue extends Table {
         Issue issue = new Issue();
         IO io = new IO();
 
-        System.out.printf("Issue to:%n%n");
         issue.issued_to = Student.threeWayAdder(connectionSource);
         if (issue.issued_to == null) {
             return;

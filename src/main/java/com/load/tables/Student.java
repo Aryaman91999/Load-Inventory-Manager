@@ -59,6 +59,8 @@ public class Student extends Table {
     }
 
     public void add(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Add a student to the database%n%n", HEADING));
+
         IO io = new IO();
         Student student = new Student();
 
@@ -69,8 +71,8 @@ public class Student extends Table {
 
         student.create(connectionSource);
 
-        System.out.println(
-                colorize("Student successfully added", GREEN_TEXT()));
+        System.out.printf(
+                colorize("%nStudent successfully added%n", GREEN_TEXT()));
     }
 
     public Dao<Student, Integer> getDao(ConnectionSource connectionSource) throws SQLException {
@@ -78,7 +80,15 @@ public class Student extends Table {
     }
 
     public void remove(ConnectionSource connectionSource) throws SQLException {
+        System.out.printf(colorize("Remove a student from the database%n%n", HEADING));
+
         Student student = select(connectionSource);
+
+        if (student == null) {
+            System.out.println("Student not found");
+            return;
+        }
+
         IO io = new IO();
 
         if (io.getBoolean("Are you sure you want to delete this student? This will delete related issue requests too ")
@@ -87,12 +97,19 @@ public class Student extends Table {
             dao.delete(dao.queryBuilder().where().eq("issued_to_id", student.id).query());
             getDao(connectionSource).delete(student);
         }
+
+        System.out.printf(colorize("%nPart successfully removed%n", SUCCESS));
     }
 
     public void edit(ConnectionSource connectionSource) throws SQLException {
         System.out.printf(colorize("Edit a student's info%n%n", HEADING));
 
         Student student = select(connectionSource);
+
+        if (student == null) {
+            System.out.println("Student not found");
+            return;
+        }
 
         IO io = new IO();
         System.out.println("Now, enter the new details: ");
@@ -114,6 +131,7 @@ public class Student extends Table {
 
         if (dao.countOf() == 0) {
             System.out.println("There are no students in the database");
+            return;
         }
 
         System.out.printf("Total %d students%n", dao.countOf());
@@ -165,22 +183,23 @@ public class Student extends Table {
 
         // where name = %name%
         // % for wildcard
-        List<Student> students = dao.queryBuilder().where().like("name", "%" + name).query();
+        List<Student> students = dao.queryBuilder().where().like("name", "%" + name + "%").query();
 
         if (students.size() == 0) {
             return new Pair<Student, String>(null, name);
         } else if (students.size() > 1) {
-            System.out.printf("Multiple students found for \"%s\"", name);
+            System.out.printf("Multiple students found for \"%s\": %n", name);
 
             int i = 1;
 
             for (Student student : students) {
                 System.out.printf("%d. %s%n", i, student.print());
+                i++;
             }
 
             // get integer with validation of range
             int idx = io.getInteger("Who did you mean?",
-                    (r) -> r > 0 && r >= students.size() + 1, "Number must be in the range of options.");
+                    (r) -> r > 0 && r <= students.size(), "Number must be in the range of options.");
 
             return new Pair<Student, String>(students.get(idx - 1), name);
         } else {

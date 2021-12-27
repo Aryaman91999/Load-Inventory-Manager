@@ -53,6 +53,11 @@ public class Category extends Table {
         System.out.printf(colorize("Remove a category%n%n", HEADING));
 
         Category cat = select(connectionSource);
+
+        if (cat == null) {
+            System.out.println("Issue not found");
+            return;
+        }
         
         IO io = new IO();
 
@@ -136,6 +141,11 @@ public class Category extends Table {
 
         System.out.println("Enter old data:");
         Category cat = select(connectionSource);
+
+        if (cat == null) {
+            System.out.println("Category not found");
+            return;
+        }
 
         cat.name = io.getString("New category name: ");
         getDao(connectionSource).update(cat);
