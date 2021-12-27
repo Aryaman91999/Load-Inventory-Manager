@@ -1,8 +1,8 @@
-package com.InventoryManagement.Tables;
+package com.load.tables;
 
-import com.InventoryManagement.Load;
-import com.InventoryManagement.IO;
-import com.InventoryManagement.Pair;
+import com.load.IO;
+import com.load.ListObject;
+import com.load.Pair;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DatabaseField;
@@ -12,8 +12,9 @@ import com.opencsv.bean.CsvBindByName;
 
 import java.sql.SQLException;
 import java.util.List;
+
+import static com.load.Format.*;
 import static com.diogonunes.jcolor.Ansi.colorize;
-import static com.InventoryManagement.Format.*;
 
 @DatabaseTable()
 public class Category extends Table {
@@ -143,7 +144,7 @@ public class Category extends Table {
     }
 
     public void list(ConnectionSource connectionSource) throws SQLException {
-        Load.list(getDao(connectionSource).queryForAll());  
+        ListObject.list(getDao(connectionSource).queryForAll());  
     }
 
     @Override
@@ -152,6 +153,6 @@ public class Category extends Table {
         IO io = new IO();
 
         String cat = io.getString("Category Name: ");
-        Load.list(getDao(connectionSource).queryBuilder().where().like("name", "%" + cat + "%").query());
+        ListObject.list(getDao(connectionSource).queryBuilder().where().like("name", "%" + cat + "%").query());
     }
 }

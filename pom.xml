@@ -3,12 +3,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.InventoryManagement</groupId>
-    <artifactId>InventoryManagement</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>com.load</groupId>
+    <artifactId>load</artifactId>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>InventoryManagement</name>
+    <name>load</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
 
@@ -87,9 +87,7 @@
             <artifactId>opencsv</artifactId>
             <version>5.5.2</version>
         </dependency>
-
     </dependencies>
-
     <build>
         <!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
         <plugins>
@@ -135,6 +133,48 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>l4j-console</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+                        <configuration>
+                            <headerType>console</headerType>
+                            <outfile>target/load.exe</outfile>
+                            <jar>target/load-${project.version}.jar</jar>
+                            <!--if <dontWrapJar>true</dontWrapJar> change to this conf <jar>${project.artifactId}-${project.version}.jar</jar>!-->
+                            <dontWrapJar>false</dontWrapJar>
+                            <errTitle>Error in launch4j plugin</errTitle>
+                            <classPath>
+                                <mainClass>com.load.App</mainClass>
+                            </classPath>
+                            <icon>src/main/resources/logo.ico</icon>
+                            <jre>
+                                <path>./jre/</path>
+                                <bundledJre64Bit>true</bundledJre64Bit>
+                                <jdkPreference>preferJre</jdkPreference>
+                            </jre>
+                            <versionInfo>
+                                <fileVersion>1.0.0.0</fileVersion>
+                                <txtFileVersion>1.0.0.0</txtFileVersion>
+                                <fileDescription>Inventory Manager</fileDescription>
+                                <copyright>Copyright 2021 Aryaman Jain </copyright>
+                                <productVersion>1.0.0.0</productVersion>
+                                <txtProductVersion>${project.version}</txtProductVersion>
+                                <productName>Load</productName>
+                                <internalName>load</internalName>
+                                <originalFilename>load.exe</originalFilename>
+                            </versionInfo>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.8.2</version>
             </plugin>
@@ -147,12 +187,13 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>3.0.0</version>
             </plugin>
+
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.InventoryManagement.App</mainClass>
+                            <mainClass>com.load.App</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

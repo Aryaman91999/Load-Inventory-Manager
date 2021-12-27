@@ -1,10 +1,10 @@
-package com.InventoryManagement;
+package com.load;
 
-import com.InventoryManagement.Tables.Issue;
-import com.InventoryManagement.Tables.Part;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.support.ConnectionSource;
+import com.load.tables.Issue;
+import com.load.tables.Part;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -14,9 +14,9 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import static com.load.AsDate.asDate;
 import static com.diogonunes.jcolor.Ansi.colorize;
 import static com.diogonunes.jcolor.Attribute.*;
-import static com.InventoryManagement.AsDate.asDate;
 
 public class Statistics {
     public static class Record {

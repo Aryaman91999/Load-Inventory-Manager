@@ -1,10 +1,10 @@
-package com.InventoryManagement.Tables.IssueDao;
+package com.load.tables.issuedao;
 
-import com.InventoryManagement.Tables.Issue;
-import com.InventoryManagement.Tables.Part;
-import com.InventoryManagement.Tables.Student;
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.support.ConnectionSource;
+import com.load.tables.Issue;
+import com.load.tables.Part;
+import com.load.tables.Student;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.InventoryManagement;
+package com.load;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;

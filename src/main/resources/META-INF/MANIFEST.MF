@@ -1,1 +1,1 @@
-Main-Class: com.InventoryManagement.App
+Main-Class: com.load.App

@@ -1,4 +1,4 @@
-package com.InventoryManagement;
+package com.load;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;

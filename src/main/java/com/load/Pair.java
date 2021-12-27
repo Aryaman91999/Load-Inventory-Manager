@@ -1,4 +1,5 @@
-package com.InventoryManagement;
+package com.load;
+
 public class Pair<U, V> {
 
     /**

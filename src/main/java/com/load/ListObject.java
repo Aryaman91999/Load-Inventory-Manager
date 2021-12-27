@@ -1,7 +1,7 @@
-package com.InventoryManagement;
+package com.load;
 
-import com.InventoryManagement.Tables.Table;
 import com.j256.ormlite.field.DatabaseField;
+import com.load.tables.Table;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Load {
+public class ListObject {
     public static <T> void list(List<T> rows) {
         Class<? extends Object> cls = rows.get(0).getClass();
 

@@ -1,10 +1,10 @@
-package com.InventoryManagement.Tables;
+package com.load.tables;
 
-import com.InventoryManagement.Load;
-import com.InventoryManagement.IO;
-import com.InventoryManagement.Pair;
-import com.InventoryManagement.ValidateEmail;
-import com.InventoryManagement.Tables.IssueDao.IssueDao;
+import com.load.IO;
+import com.load.ListObject;
+import com.load.Pair;
+import com.load.ValidateEmail;
+import com.load.tables.issuedao.IssueDao;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DatabaseField;
@@ -22,9 +22,9 @@ import java.io.Reader;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.load.Format.*;
 import static com.diogonunes.jcolor.Ansi.colorize;
 import static com.diogonunes.jcolor.Attribute.*;
-import static com.InventoryManagement.Format.*;
 
 @DatabaseTable()
 public class Student extends Table {
@@ -118,7 +118,7 @@ public class Student extends Table {
 
         System.out.printf("Total %d students%n", dao.countOf());
 
-        Load.list(dao.queryForAll());
+        ListObject.list(dao.queryForAll());
     }
 
     public void create(ConnectionSource connectionSource) throws SQLException {
@@ -244,7 +244,7 @@ public class Student extends Table {
 
         List<Student> res = where.query();
         System.out.printf("total %d results%n", res.size());
-        Load.list(res);
+        ListObject.list(res);
     }
 
     @Override

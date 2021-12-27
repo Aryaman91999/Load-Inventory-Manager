@@ -1,9 +1,10 @@
-package com.InventoryManagement;
+package com.load;
 
-import com.InventoryManagement.Tables.*;
 import com.j256.ormlite.logger.*;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import com.load.tables.*;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;

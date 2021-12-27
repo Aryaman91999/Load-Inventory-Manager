@@ -1,4 +1,4 @@
-package com.InventoryManagement;
+package com.load;
 
 import java.util.regex.Pattern;
 

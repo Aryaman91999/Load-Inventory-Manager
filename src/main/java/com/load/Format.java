@@ -1,4 +1,4 @@
-package com.InventoryManagement;
+package com.load;
 import com.diogonunes.jcolor.Attribute;
 import static com.diogonunes.jcolor.Attribute.*;
 

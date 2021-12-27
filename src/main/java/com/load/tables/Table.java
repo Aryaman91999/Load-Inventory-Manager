@@ -1,4 +1,4 @@
-package com.InventoryManagement.Tables;
+package com.load.tables;
 
 import java.sql.SQLException;
 

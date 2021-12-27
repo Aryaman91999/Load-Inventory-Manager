@@ -1,9 +1,9 @@
-package com.InventoryManagement.Tables;
+package com.load.tables;
 
-import com.InventoryManagement.Tables.IssueDao.*;
-import com.InventoryManagement.AsDate;
-import com.InventoryManagement.Load;
-import com.InventoryManagement.IO;
+import com.load.AsDate;
+import com.load.IO;
+import com.load.ListObject;
+import com.load.tables.issuedao.*;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.field.DataType;
@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.load.Format.*;
 import static com.diogonunes.jcolor.Ansi.colorize;
-import static com.InventoryManagement.Format.*;
 
 /**
  * Model for the issue object
@@ -189,7 +189,7 @@ public class Issue extends Table {
         System.out.printf("%d total issue requests, %d active.%n", dao.countOf(),
                 dao.queryBuilder().where().gt("return_on", AsDate.asDate(LocalDate.now())).countOf());
 
-        Load.list(dao.queryForAll());
+        ListObject.list(dao.queryForAll());
     }
 
     @Override
@@ -269,6 +269,6 @@ public class Issue extends Table {
 
         List<Issue> res = where.query();
         System.out.printf("Total %d results%n");
-        Load.list(res);
+        ListObject.list(res);
     }
 }
