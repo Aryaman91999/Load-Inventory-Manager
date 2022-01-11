@@ -8,6 +8,8 @@ import com.load.tables.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
@@ -18,18 +20,15 @@ import static com.diogonunes.jcolor.Ansi.colorize;
 import static com.diogonunes.jcolor.Attribute.*;
 
 public class App {
-    enum Objects {
-        Part,
-        Student,
-        Issue
-    }
-
     public static void main(String[] args) {
 
         final CommandLineParser cmdParser = new DefaultParser();
         CommandLine commandLine;
+
+        Options options = ArgManager.build();
+
         try {
-            commandLine = cmdParser.parse(ArgManager.build(), args);
+            commandLine = cmdParser.parse(options, args);
         } catch (ParseException e) {
             System.out.println("Unable to parse arguments. Error: " + e.getMessage());
             System.exit(1);
@@ -41,6 +40,11 @@ public class App {
         if (!commandLine.hasOption("v")) {
             LoggerFactory.setLogBackendFactory(new NullLogBackend.NullLogBackendFactory());
         }
+
+        if (commandLine.hasOption("h")) {
+            new HelpFormatter().printHelp("./load <options>", options);
+        }
+
         if (commandLine.hasOption("i")) {
             ConnectionSource connectionSource;
             IniManager.initialize();
@@ -112,6 +116,10 @@ public class App {
                 default -> System.out.printf(colorize("No such object: %s", RED_TEXT()), commandLine.getOptionValue(mod));
             }
 
+            if (model == null) {
+                return;
+            }
+
             switch (mod) {
                 case 'a' -> func = "add";
                 case 'r' -> func = "remove";
@@ -119,7 +127,14 @@ public class App {
                 case 'l' -> func = "list";
                 case 'f' -> func = "filter";
                 case 'L' -> func = "load";
+                default ->  System.out.printf(colorize("No such action: %s", RED_TEXT()), commandLine.getOptionValue(mod));
             }
+
+            if (func.isEmpty()) {
+                return;
+            }
+
+            
 
             ConnectionSource db = IniManager.getDB();
 
@@ -132,7 +147,7 @@ public class App {
             } catch (InvocationTargetException e) {
                 if (e.getCause() instanceof SQLException) {
                     e.printStackTrace();
-                    System.out.println("SQL Error: " + e.getMessage());
+                    System.out.println("SQL Error: " + e.getCause().getMessage());
                 } else {
                     e.printStackTrace();
                 }
@@ -144,4 +159,5 @@ public class App {
 
         }
     }
+
 }

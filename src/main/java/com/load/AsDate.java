@@ -1,5 +1,6 @@
 package com.load;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -17,8 +18,11 @@ public class AsDate {
     }
 
     public static Date asDate(String str, String format) {
-        DateTimeFormatter d = new DateTimeFormatterBuilder().appendPattern("dd-MM-yyyy").toFormatter();
-        return AsDate.asDate(LocalDate.parse(str, d));
+        try {
+            return new SimpleDateFormat("dd-MM-yyyy").parse(str);
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     public static String toString(Date date) {

@@ -1,0 +1,99 @@
+[
+    {
+        "name": "com.load.tables.Category",
+        "fields": [
+            {
+                "name": "name"
+            },
+            {
+                "name": "id"
+            }
+        ],
+        "queryAllDeclaredConstructors": true,
+        "queryAllPublicConstructors": true,
+        "queryAllDeclaredMethods": true,
+        "queryAllPublicMethods": true
+    },
+    {
+        "name": "com.load.tables.Student",
+        "fields": [
+            {
+                "name": "name"
+            },
+            {
+                "name": "id"
+            },
+            {
+                "name": "email"
+            },
+            {
+                "name": "roll_no"
+            },
+            {
+                "name": "_class"
+            }
+        ],
+        "queryAllDeclaredConstructors": true,
+        "queryAllPublicConstructors": true,
+        "queryAllDeclaredMethods": true,
+        "queryAllPublicMethods": true
+    },
+    {
+        "name": "com.load.tables.Part",
+        "fields": [
+            {
+                "name": "name"
+            },
+            {
+                "name": "id"
+            },
+            {
+                "name": "quantity"
+            },
+            {
+                "name": "category"
+            }
+        ],
+        "queryAllDeclaredConstructors": true,
+        "queryAllPublicConstructors": true,
+        "queryAllDeclaredMethods": true,
+        "queryAllPublicMethods": true
+    },
+    {
+        "name": "com.load.tables.Issue",
+        "fields": [
+            {
+                "name": "part"
+            },
+            {
+                "name": "id"
+            },
+            {
+                "name": "quantity"
+            },
+            {
+                "name": "issued_on"
+            },
+            {
+                "name": "return_on"
+            },
+            {
+                "name": "returned"
+            },
+            {
+                "name": "issued_to"
+            }
+        ],
+        "queryAllDeclaredConstructors": true,
+        "queryAllPublicConstructors": true,
+        "queryAllDeclaredMethods": true,
+        "queryAllPublicMethods": true
+    },
+    {
+        "name": "com.load.tables.Table",
+        "queryAllDeclaredConstructors": true,
+        "queryAllPublicConstructors": true,
+        "queryAllDeclaredMethods": true,
+        "queryAllPublicMethods": true
+    }
+]

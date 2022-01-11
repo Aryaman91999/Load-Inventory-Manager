@@ -13,6 +13,11 @@ import java.util.Map;
 
 public class ListObject {
     public static <T> void list(List<T> rows) {
+        if (rows.size() == 0) {
+            System.out.println("No results");
+            return;
+        }
+
         Class<? extends Object> cls = rows.get(0).getClass();
 
         Map<Field, Integer> max_lens = new LinkedHashMap<Field, Integer>();

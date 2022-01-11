@@ -47,10 +47,10 @@ public class Issue extends Table {
     public Date return_on;
 
     @DatabaseField(persisted = false, useGetSet = true)
-    public static String returned = "date(return_on) > date('now','localtime')";
+    public static String returned = "date(return_on) >= date('now','localtime')";
 
     public String getReturned() {
-        return this.return_on.after(AsDate.asDate(LocalDate.now())) ? "Yes" : "No";
+        return this.return_on.after(AsDate.asDate(LocalDate.now())) ? "No" : "Yes";
     }
 
     public void setReturned(String returned) throws AccessDeniedException {
@@ -104,8 +104,7 @@ public class Issue extends Table {
         System.out.println("Now, enter the new values: ");
 
         IO io = new IO();
-
-        System.out.printf("Issue to:%n%n");
+        
         issue.issued_to = Student.threeWayAdder(connectionSource);
         issue.part = Part.threeWayAdder(connectionSource);
         issue.quantity = io.getInteger("Part quantity to issue: ");
@@ -251,7 +250,7 @@ public class Issue extends Table {
             if (where_num >= 1) {
                 where.and();
             }
-            where.raw("date(return_on) = date(" + AsDate.toString(AsDate.asDate(ret), "yyyy-MM-dd") + ")");
+            where.raw("date(return_on) = date('" + AsDate.toString(AsDate.asDate(ret), "yyyy-MM-dd") + "')");
             where_num++;
         }
 
@@ -264,9 +263,9 @@ public class Issue extends Table {
                 where.and();
             }
             if (Arrays.asList("y", "yes").contains(returned)) {
-                where.raw(Issue.returned);
-            } else {
                 where.raw("NOT " + Issue.returned);
+            } else {
+                where.raw(Issue.returned);
             }
             where_num++;
         }
@@ -277,7 +276,7 @@ public class Issue extends Table {
         }
 
         List<Issue> res = where.query();
-        System.out.printf("Total %d results%n");
+        System.out.printf("Total %d results%n", res.size());
         ListObject.list(res);
     }
 }

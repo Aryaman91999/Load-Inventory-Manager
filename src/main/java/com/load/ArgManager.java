@@ -9,7 +9,14 @@ public class ArgManager {
                                 .required(false)
                                 .hasArg(false)
                                 .longOpt("verbose")
-                                .desc("Print status of SQL queries")
+                                .desc("Print full warnings and errors")
+                                .build();
+
+                final Option help = Option.builder("h")
+                                .required(false)
+                                .hasArg(false)
+                                .longOpt("help")
+                                .desc("get help on how to use load")
                                 .build();
 
                 final Option initialize = Option.builder("i")
@@ -27,35 +34,35 @@ public class ArgManager {
                                 .hasArg(true)
                                 .optionalArg(false)
                                 .longOpt("add")
-                                .argName("object to add")
-                                .desc("set flag to add things")
+                                .argName("OBJECT")
+                                .desc("set flag to add objects")
                                 .build();
 
                 final Option remove = Option.builder("r")
                                 .required(false)
                                 .hasArg(true)
                                 .optionalArg(false)
-                                .argName("object to add")
+                                .argName("OBJECT")
                                 .longOpt("remove")
-                                .desc("set flag to remove things")
+                                .desc("set flag to remove objects")
                                 .build();
 
                 final Option edit = Option.builder("e")
                                 .required(false)
                                 .hasArg(true)
                                 .optionalArg(false)
-                                .argName("object to edit")
+                                .argName("OBJECT")
                                 .longOpt("edit")
-                                .desc("set flag to edit things")
+                                .desc("set flag to edit objects")
                                 .build();
 
                 final Option list = Option.builder("l")
                                 .required(false)
                                 .hasArg(true)
                                 .optionalArg(false)
-                                .argName("object to list")
+                                .argName("OBJECT")
                                 .longOpt("list")
-                                .desc("set flag to list things")
+                                .desc("set flag to list objects")
                                 .build();
 
                 final Option load = Option.builder("L")
@@ -63,18 +70,18 @@ public class ArgManager {
                                 .hasArg(true)
                                 .numberOfArgs(2)
                                 .optionalArg(false)
-                                .argName("<OBJECT> <CSV FILE>")
+                                .argName("OBJECT> <CSV FILE")
                                 .longOpt("load")
-                                .desc("set flag to load things")
+                                .desc("set flag to load objects")
                                 .build();
 
                 final Option filter = Option.builder("f")
                                 .required(false)
                                 .hasArg(true)
                                 .optionalArg(false)
-                                .argName("object to filter")
+                                .argName("OBJECT")
                                 .longOpt("filter")
-                                .desc("set flag to filter things")
+                                .desc("set flag to filter objects")
                                 .build();
 
                 final Option history = Option.builder("H")
@@ -100,6 +107,7 @@ public class ArgManager {
 
                 final Options options = new Options();
                 options.addOption(verbose);
+                options.addOption(help);
                 options.addOption(initialize);
                 options.addOption(add);
                 options.addOption(remove);
