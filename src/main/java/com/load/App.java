@@ -148,8 +148,6 @@ public class App {
                 if (e.getCause() instanceof SQLException) {
                     e.printStackTrace();
                     System.out.println("SQL Error: " + e.getCause().getMessage());
-                } else {
-                    e.printStackTrace();
                 }
             } catch (IllegalAccessException | IllegalArgumentException
                     | NoSuchMethodException | SecurityException | InstantiationException e) {
