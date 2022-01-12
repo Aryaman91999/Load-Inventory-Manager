@@ -43,6 +43,9 @@ jobs:
     - name: 'Write Upload URL To File'
       if: contains(github.event.head_commit.message, 'v')
       run: echo '"${{steps.create_release.outputs.upload_url}}" > upload_url.txt'
+    
+    - name: 'ls'
+      run: ls
 
     - name: 'Publish Upload URL'
       if: contains(github.event.head_commit.message, 'v')
