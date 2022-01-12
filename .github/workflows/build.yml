@@ -42,7 +42,7 @@ jobs:
     
     - name: 'Write Upload URL To File'
       if: contains(github.event.head_commit.message, 'v')
-      run: 'echo ''${{steps.create_release.outputs.upload_url}}'' > upload_url.txt'
+      run: echo "${{steps.create_release.outputs.upload_url}} > upload_url.txt"
 
     - name: 'Publish Upload URL'
       if: contains(github.event.head_commit.message, 'v')
@@ -74,7 +74,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
       
       - name: 'Set Version Number'
-        run: echo 'VERSION=$(mvn help:evaluate -Dexpression="project.version" -q -DforceStdout)' >> $GITHUB_ENV
+        run: echo "VERSION=$(mvn help:evaluate -Dexpression=''project.version'' -q -DforceStdout)" >> $GITHUB_ENV
         
       - name: 'Get JAR'
         uses: actions/download-artifact@v2.1.0
@@ -132,7 +132,7 @@ jobs:
           choco install visualstudio2022-workload-vctools
       - name: 'Get Version Number'
         run: |
-          echo 'VERSION=$(mvn help:evaluate -Dexpression="project.version" -q -DforceStdout)' >> $GITHUB_ENV
+          echo "VERSION=$(mvn help:evaluate -Dexpression=''project.version'' -q -DforceStdout)" >> $GITHUB_ENV
         shell: bash
       - name: 'Get JAR Artifact'
         uses: actions/download-artifact@v2.1.0
