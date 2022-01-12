@@ -74,7 +74,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
       
       - name: 'Set Version Number'
-        run: echo "VERSION=$(mvn help:evaluate -Dexpression=''project.version'' -q -DforceStdout)" >> $GITHUB_ENV
+        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         
       - name: 'Get JAR'
         uses: actions/download-artifact@v2.1.0
@@ -137,7 +137,7 @@ jobs:
       - name: 'Get JAR Artifact'
         uses: actions/download-artifact@v2.1.0
         with:
-          name: 'simple-socket-fn-logger-${{env.VERSION}}-all.jar'
+          name: 'load-${{env.VERSION}}.jar'
       - name: 'Build Native Image'
         shell: cmd
         env:
