@@ -100,7 +100,7 @@ jobs:
         run: ls
         
       - name: 'Build Image'
-        run: 'native-image --no-server --no-fallback -H:ReflectionConfigurationResources=reflection-config.json -jar load-${{env.VERSION}}.jar'
+        run: 'native-image --no-server --no-fallback -H:ReflectionConfigurationResources="./reflection-config.json" -jar load-${{env.VERSION}}.jar'
       
       - name: 'Upload Image'
         if: success()
