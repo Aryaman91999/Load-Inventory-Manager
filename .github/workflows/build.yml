@@ -74,7 +74,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
       
       - name: 'Set Version Number'
-        run: echo 'VERSION::$(mvn help:evaluate -Dexpression="project.version" -q -DforceStdout)'
+        run: echo 'VERSION=$(mvn help:evaluate -Dexpression="project.version" -q -DforceStdout)' >> $GITHUBENV
         
       - name: 'Get JAR'
         uses: actions/download-artifact@v2.1.0
