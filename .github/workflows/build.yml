@@ -31,7 +31,7 @@ jobs:
         path: 'target/*.jar'
       
     - name: 'Create Release'
-      if: contains(github.ref, 'v')
+      if: contains(github.event.head_commit.message, 'v')
       id: 'create_release'
       uses: ncipollo/release-action@v1
       with:
@@ -41,11 +41,11 @@ jobs:
         artifacts: 'target/*.jar'
     
     - name: 'Write Upload URL To File'
-      if: contains(github.ref, 'v')
+      if: contains(github.event.head_commit.message, 'v')
       run: 'echo ''${{steps.create_release.outputs.upload_url}}'' > upload_url.txt'
 
     - name: 'Publish Upload URL'
-      if: contains(github.ref, 'v')
+      if: contains(github.event.head_commit.message, 'v')
       uses: actions/upload-artifact@v2.3.1
       with:
         name: 'upload_url.txt'
@@ -71,6 +71,7 @@ jobs:
           version: 'latest'
           java-version: '17'
           components: 'native-image'
+          github-token: ${{secrets.GITHUB_TOKEN}}
       
       - name: 'Set Version Number'
         run: echo 'VERSION::$(mvn help:evaluate -Dexpression="project.version" -q -DforceStdout)'
@@ -86,7 +87,7 @@ jobs:
           name: 'upload_url.txt'
           
       - name: 'Set Upload URL Env Var'
-        if: contains(github.ref, 'v')
+        if: contains(github.event.head_commit.message, 'v')
         run: echo 'UPLOAD_URL=$(cat upload_url.txt)' >> $GITHUB_ENV
         
       - name: 'Build Image'
@@ -100,7 +101,7 @@ jobs:
           path: 'load-${{env.VERSION}}'
           
       - name: 'Release Native Image Asset'
-        if: success() && contains(github.ref, 'v')
+        if: success() && contains(github.event.head_commit.message, 'v')
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
@@ -125,7 +126,7 @@ jobs:
           Expand-Archive -path 'graal.zip' -destinationpath '.'
       - name: 'Install Native Image'
         run: |
-          graalvm-ce-java11-20.1.0\bin\gu.cmd install native-image
+          graalvm-ce-java11-21.3.0\bin\gu.cmd install native-image
       - name: 'Set up Visual C Build Tools Workload for Visual Studio 2012 Build Tools'
         run: |
           choco install visualstudio2022-workload-vctools
@@ -145,12 +146,12 @@ jobs:
           call 'C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat'
           ./graalvm-ce-java11-20.1.0/bin/native-image --no-server --no-fallback -H:ReflectionConfigurationResources=reflection-config.json -jar load-${{env.VERSION}}.jar
       - name: 'Get Release URL'
-        if: contains(github.ref, 'v')
+        if: contains(github.event.head_commit.message, 'v')
         uses: actions/download-artifact@v2.1.0
         with:
           name: 'upload_url.txt'
       - name: 'Get Upload URL'
-        if: contains(github.ref, 'v')
+        if: contains(github.event.head_commit.message, 'v')
         run: |
           echo 'UPLOAD_URL=$(cat upload_url.txt)' >> $GITHUB_ENV
         shell: bash
@@ -161,7 +162,7 @@ jobs:
           name: 'load-${{env.VERSION}}-windows_x64.exe'
           path: 'load-${{env.VERSION}}.exe'
       - name: 'Release Windows Image Asset'
-        if: success() && contains(github.ref, 'v')
+        if: success() && contains(github.event.head_commit.message, 'v')
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
