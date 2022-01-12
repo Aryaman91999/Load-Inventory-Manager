@@ -96,6 +96,9 @@ jobs:
         if: contains(github.event.head_commit.message, 'v')
         run: echo 'UPLOAD_URL=$(cat upload_url.txt)' >> $GITHUB_ENV
         
+      - name: 'ls'
+        run: ls
+        
       - name: 'Build Image'
         run: 'native-image --no-server --no-fallback -H:ReflectionConfigurationResources=reflection-config.json -jar load-${{env.VERSION}}.jar'
       
