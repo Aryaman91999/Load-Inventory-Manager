@@ -1,9 +1,12 @@
-package com.load.tables;
+package com.aryaman.load.tables;
 
-import com.load.AsDate;
-import com.load.IO;
-import com.load.ListObject;
-import com.load.tables.issuedao.*;
+import com.aryaman.load.AsDate;
+import com.aryaman.load.IO;
+import com.aryaman.load.ListObject;
+import com.aryaman.load.Format;
+import com.aryaman.load.tables.issuedao.IssueDao;
+import com.aryaman.load.tables.issuedao.IssueDaoImpl;
+import com.diogonunes.jcolor.Ansi;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.field.DataType;
@@ -19,7 +22,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static com.load.Format.*;
 import static com.diogonunes.jcolor.Ansi.colorize;
 
 /**
@@ -73,7 +75,7 @@ public class Issue extends Table {
     }
 
     public void remove(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Remove an issue%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Remove an issue%n%n", Format.HEADING));
 
         Issue issue = select(connectionSource);
 
@@ -87,11 +89,11 @@ public class Issue extends Table {
             getDao(connectionSource).delete(issue);
         }
 
-        System.out.printf(colorize("%nIssue removed successfully%n", SUCCESS));
+        System.out.printf(Ansi.colorize("%nIssue removed successfully%n", Format.SUCCESS));
     }
 
     public void edit(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Edit an issue%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Edit an issue%n%n", Format.HEADING));
 
         System.out.println("First, enter the current values of the issue you want to edit: ");
         Issue issue = select(connectionSource);
@@ -113,7 +115,7 @@ public class Issue extends Table {
 
         getDao(connectionSource).update(issue);
 
-        System.out.printf(colorize("%nIssue edited successfully%n", SUCCESS));
+        System.out.printf(Ansi.colorize("%nIssue edited successfully%n", Format.SUCCESS));
     }
 
     public IssueDao getDao(ConnectionSource connectionSource) throws SQLException {
@@ -143,7 +145,7 @@ public class Issue extends Table {
     }
 
     public void add(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Add an issue%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Add an issue%n%n", Format.HEADING));
 
         Issue issue = new Issue();
         IO io = new IO();
@@ -181,11 +183,11 @@ public class Issue extends Table {
 
         issue.create(connectionSource);
 
-        System.out.printf(colorize("%nIssue successfully added%n", SUCCESS));
+        System.out.printf(Ansi.colorize("%nIssue successfully added%n", Format.SUCCESS));
     }
 
     public void list(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("All issue requests%n%n", HEADING));
+        System.out.printf(Ansi.colorize("All issue requests%n%n", Format.HEADING));
 
         IssueDao dao = getDao(connectionSource);
 
@@ -202,7 +204,7 @@ public class Issue extends Table {
 
     @Override
     public void filter(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Filter issues%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Filter issues%n%n", Format.HEADING));
         System.out.println("Enter \"*\" for no filtering on a field");
 
         int where_num = 0;

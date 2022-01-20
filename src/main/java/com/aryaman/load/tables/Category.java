@@ -1,8 +1,10 @@
-package com.load.tables;
+package com.aryaman.load.tables;
 
-import com.load.IO;
-import com.load.ListObject;
-import com.load.Pair;
+import com.aryaman.load.IO;
+import com.aryaman.load.ListObject;
+import com.aryaman.load.Pair;
+import com.aryaman.load.Format;
+import com.diogonunes.jcolor.Ansi;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DatabaseField;
@@ -12,9 +14,6 @@ import com.opencsv.bean.CsvBindByName;
 
 import java.sql.SQLException;
 import java.util.List;
-
-import static com.load.Format.*;
-import static com.diogonunes.jcolor.Ansi.colorize;
 
 @DatabaseTable()
 public class Category extends Table {
@@ -42,15 +41,15 @@ public class Category extends Table {
     }
 
     public void add(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Add a category%n",  HEADING));
+        System.out.printf(Ansi.colorize("Add a category%n",  Format.HEADING));
 
         new Category(new IO().getString("Category Name: ")).create(connectionSource);
 
-        System.out.printf(colorize("%nCategory successfully added%n",  SUCCESS));
+        System.out.printf(Ansi.colorize("%nCategory successfully added%n",  Format.SUCCESS));
     }
 
     public void remove(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Remove a category%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Remove a category%n%n", Format.HEADING));
 
         Category cat = select(connectionSource);
 
@@ -65,7 +64,7 @@ public class Category extends Table {
             getDao(connectionSource).delete(cat);
         }
 
-        System.out.printf(colorize("%nCategory successfully removed%n", SUCCESS));
+        System.out.printf(Ansi.colorize("%nCategory successfully removed%n", Format.SUCCESS));
     }
 
     public static Category select(ConnectionSource connectionSource) throws SQLException {
@@ -135,7 +134,7 @@ public class Category extends Table {
     }
 
     public void edit(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Edit a category %n%n", HEADING));
+        System.out.printf(Ansi.colorize("Edit a category %n%n", Format.HEADING));
         
         IO io = new IO();
 
@@ -150,7 +149,7 @@ public class Category extends Table {
         cat.name = io.getString("New category name: ");
         getDao(connectionSource).update(cat);
 
-        System.out.printf(colorize("%nSuccessfully edited%n", SUCCESS));
+        System.out.printf(Ansi.colorize("%nSuccessfully edited%n", Format.SUCCESS));
     }
 
     public void list(ConnectionSource connectionSource) throws SQLException {
@@ -159,7 +158,7 @@ public class Category extends Table {
 
     @Override
     public void filter(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Filter categories%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Filter categories%n%n", Format.HEADING));
         IO io = new IO();
 
         String cat = io.getString("Category Name: ");

@@ -1,7 +1,7 @@
-package com.load;
+package com.aryaman.load;
 
+import com.aryaman.load.tables.Table;
 import com.j256.ormlite.field.DatabaseField;
-import com.load.tables.Table;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

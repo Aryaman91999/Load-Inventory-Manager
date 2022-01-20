@@ -1,4 +1,4 @@
-package com.load;
+package com.aryaman.load;
 
 public class Pair<U, V> {
 

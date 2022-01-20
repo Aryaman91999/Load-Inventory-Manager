@@ -1,6 +1,6 @@
 [
     {
-        "name": "com.load.tables.Category",
+        "name": "com.aryaman.load.tables.Category",
         "fields": [
             {
                 "name": "name"
@@ -15,7 +15,7 @@
         "queryAllPublicMethods": true
     },
     {
-        "name": "com.load.tables.Student",
+        "name": "com.aryaman.load.tables.Student",
         "fields": [
             {
                 "name": "name"
@@ -39,7 +39,7 @@
         "queryAllPublicMethods": true
     },
     {
-        "name": "com.load.tables.Part",
+        "name": "com.aryaman.load.tables.Part",
         "fields": [
             {
                 "name": "name"
@@ -60,7 +60,7 @@
         "queryAllPublicMethods": true
     },
     {
-        "name": "com.load.tables.Issue",
+        "name": "com.aryaman.load.tables.Issue",
         "fields": [
             {
                 "name": "part"
@@ -90,7 +90,14 @@
         "queryAllPublicMethods": true
     },
     {
-        "name": "com.load.tables.Table",
+        "name": "com.aryaman.load.tables.Table",
+        "queryAllDeclaredConstructors": true,
+        "queryAllPublicConstructors": true,
+        "queryAllDeclaredMethods": true,
+        "queryAllPublicMethods": true
+    },
+    {
+        "name": "ch.qos.logback.classic.Logger",
         "queryAllDeclaredConstructors": true,
         "queryAllPublicConstructors": true,
         "queryAllDeclaredMethods": true,

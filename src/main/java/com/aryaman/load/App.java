@@ -1,9 +1,13 @@
-package com.load;
+package com.aryaman.load;
 
+import com.aryaman.load.tables.Category;
+import com.aryaman.load.tables.Issue;
+import com.aryaman.load.tables.Part;
+import com.aryaman.load.tables.Student;
+import com.diogonunes.jcolor.Ansi;
 import com.j256.ormlite.logger.*;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
-import com.load.tables.*;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -11,8 +15,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.fusesource.jansi.AnsiConsole;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 
@@ -25,12 +29,14 @@ public class App {
         final CommandLineParser cmdParser = new DefaultParser();
         CommandLine commandLine;
 
+        AnsiConsole.systemInstall();
+
         Options options = ArgManager.build();
 
         try {
             commandLine = cmdParser.parse(options, args);
         } catch (ParseException e) {
-            System.out.println("Unable to parse arguments. Error: " + e.getMessage());
+            System.out.println(Ansi.colorize(e.getMessage(), RED_TEXT()));
             System.exit(1);
             return;
         }
@@ -38,7 +44,7 @@ public class App {
         char mod = ' ';
 
         if (!commandLine.hasOption("v")) {
-            LoggerFactory.setLogBackendFactory(new NullLogBackend.NullLogBackendFactory());
+            Logger.setGlobalLogLevel(Level.ERROR);
         }
 
         if (commandLine.hasOption("h")) {
@@ -64,8 +70,9 @@ public class App {
                 TableUtils.createTableIfNotExists(connectionSource, Student.class);
                 TableUtils.createTableIfNotExists(connectionSource, Issue.class);
                 connectionSource.close();
-            } catch (SQLException | IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                System.exit(1);
             }
 
             System.out.println(colorize("Initialized database", GREEN_TEXT()));
@@ -103,17 +110,17 @@ public class App {
             Statistics.totalStock(IniManager.getDB());
             System.exit(0);
             return;
-         } 
+        }
 
         if (mod != ' ') {
             Class<?> model = null;
-            String func = "";
+            String func;
 
             switch (commandLine.getOptionValue(mod).toLowerCase()) {
                 case "student" -> model = Student.class;
                 case "part" -> model = Part.class;
                 case "issue" -> model = Issue.class;
-                default -> System.out.printf(colorize("No such object: %s", RED_TEXT()), commandLine.getOptionValue(mod));
+                default -> System.out.printf("No such object: %s%n", commandLine.getOptionValue(mod));
             }
 
             if (model == null) {
@@ -127,32 +134,33 @@ public class App {
                 case 'l' -> func = "list";
                 case 'f' -> func = "filter";
                 case 'L' -> func = "load";
-                default ->  System.out.printf(colorize("No such action: %s", RED_TEXT()), commandLine.getOptionValue(mod));
+                default -> func = "";
             }
-
-            if (func.isEmpty()) {
-                return;
-            }
-
-            
 
             ConnectionSource db = IniManager.getDB();
+
+            // when ctrl + c is pressed, close the connection
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    db.close();
+                } catch (Exception e) {
+                    System.out.printf("An Exception occurred: %s%n", e.getMessage());
+                }
+            }));
 
             try {
                 if (mod == 'L') {
                     model.getMethod(func, ConnectionSource.class, String.class).invoke(model.getConstructor().newInstance(), db, commandLine.getOptionValues("L")[1]);
+                    db.close();
                     return;
                 }
                 model.getMethod(func, ConnectionSource.class).invoke(model.getConstructor().newInstance(), db);
             } catch (InvocationTargetException e) {
                 if (e.getCause() instanceof SQLException) {
-                    e.printStackTrace();
-                    System.out.println("SQL Error: " + e.getCause().getMessage());
+                    System.out.printf("SQL Error: %s%n", e.getCause().getMessage());
                 }
-            } catch (IllegalAccessException | IllegalArgumentException
-                    | NoSuchMethodException | SecurityException | InstantiationException e) {
-
-                e.printStackTrace();
+            } catch (Exception e) {
+                System.out.printf("An Exception occurred: %s%n", e.getMessage());
             }
 
         }

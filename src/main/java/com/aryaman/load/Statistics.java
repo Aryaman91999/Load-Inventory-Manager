@@ -1,10 +1,10 @@
-package com.load;
+package com.aryaman.load;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.support.ConnectionSource;
-import com.load.tables.Issue;
-import com.load.tables.Part;
+import com.aryaman.load.tables.Issue;
+import com.aryaman.load.tables.Part;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import static com.load.AsDate.asDate;
+import static com.aryaman.load.AsDate.asDate;
 import static com.diogonunes.jcolor.Ansi.colorize;
 import static com.diogonunes.jcolor.Attribute.*;
 
@@ -52,7 +52,7 @@ public class Statistics {
                     DaoManager.createDao(connectionSource, Issue.class)) {
                 records.add(new Record(issue.issued_on, issue.part.name, issue.quantity, issue.issued_to.name, false));
 
-                Date current = asDate(LocalDate.now());
+                Date current = AsDate.asDate(LocalDate.now());
                 if (issue.return_on.equals(current) || issue.return_on.before(current)) {
                     records.add(new Record(issue.return_on, issue.part.name, issue.quantity, issue.issued_to.name, true));
                 }
@@ -90,7 +90,7 @@ public class Statistics {
                 Dao<Issue, Integer> issueDao = DaoManager.createDao(connectionSource, Issue.class);
 
                 // select * from issue where part = part and return_on > today's date
-                List<Issue> dues = issueDao.query(issueDao.queryBuilder().where().eq("part_id", part.id).and().gt("return_on", asDate(LocalDate.now())).prepare());
+                List<Issue> dues = issueDao.query(issueDao.queryBuilder().where().eq("part_id", part.id).and().gt("return_on", AsDate.asDate(LocalDate.now())).prepare());
 
                 int due_num = 0;
 

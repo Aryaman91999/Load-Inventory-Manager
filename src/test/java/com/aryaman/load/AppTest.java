@@ -1,4 +1,4 @@
-package com.load;
+package com.aryaman.load;
 
 // uncomment if you're testing
 // import org.junit.Test;

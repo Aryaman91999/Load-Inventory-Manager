@@ -1,9 +1,11 @@
-package com.load.tables;
+package com.aryaman.load.tables;
 
-import com.load.IO;
-import com.load.ListObject;
-import com.load.Pair;
-import com.load.tables.issuedao.IssueDao;
+import com.aryaman.load.IO;
+import com.aryaman.load.ListObject;
+import com.aryaman.load.Pair;
+import com.aryaman.load.Format;
+import com.aryaman.load.tables.issuedao.IssueDao;
+import com.diogonunes.jcolor.Ansi;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DatabaseField;
@@ -22,7 +24,6 @@ import java.io.Reader;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.load.Format.*;
 import static com.diogonunes.jcolor.Ansi.colorize;
 
 @DatabaseTable()
@@ -54,7 +55,7 @@ public class Part extends Table {
     }
 
     public void add(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Add a part%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Add a part%n%n", Format.HEADING));
 
         IO io = new IO();
         Part part = new Part();
@@ -65,11 +66,11 @@ public class Part extends Table {
 
         part.create(connectionSource);
 
-        System.out.printf(colorize("%nPart successfully added%n", SUCCESS));
+        System.out.printf(Ansi.colorize("%nPart successfully added%n", Format.SUCCESS));
     }
 
     public void remove(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Remove a part%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Remove a part%n%n", Format.HEADING));
 
         Part part = select(connectionSource);
 
@@ -86,11 +87,11 @@ public class Part extends Table {
             getDao(connectionSource).delete(part);
         }
 
-        System.out.printf(colorize("%nPart successfully removed%n", SUCCESS));
+        System.out.printf(Ansi.colorize("%nPart successfully removed%n", Format.SUCCESS));
     }
 
     public void edit(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Edit a part%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Edit a part%n%n", Format.HEADING));
 
         Part part = select(connectionSource);
 
@@ -109,11 +110,11 @@ public class Part extends Table {
 
         getDao(connectionSource).update(part);
 
-        System.out.printf(colorize("%nPart successfully edited%n", SUCCESS));
+        System.out.printf(Ansi.colorize("%nPart successfully edited%n", Format.SUCCESS));
     }
 
     public void list(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("All parts%n%n", HEADING));
+        System.out.printf(Ansi.colorize("All parts%n%n", Format.HEADING));
 
         Dao<Part, Integer> dao = getDao(connectionSource);
         
@@ -198,7 +199,7 @@ public class Part extends Table {
 
     @Override
     public void filter(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Filter parts%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Filter parts%n%n", Format.HEADING));
         System.out.println("Enter \"*\" for no filtering on a field");
 
         int where_num = 0;
@@ -258,11 +259,11 @@ public class Part extends Table {
                     part.category = cat;
                 }
 
-                System.out.printf(colorize("Adding part %s", SUCCESS), part.name);
+                System.out.printf(Ansi.colorize("Adding part %s", Format.SUCCESS), part.name);
                 part.create(connectionSource);
             }
         } catch (FileNotFoundException e) {
-            System.out.println(colorize("Could not find file because it does not exist", ERROR));
+            System.out.println(Ansi.colorize("Could not find file because it does not exist", Format.ERROR));
         }
     }
 }

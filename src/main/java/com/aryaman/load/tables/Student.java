@@ -1,10 +1,12 @@
-package com.load.tables;
+package com.aryaman.load.tables;
 
-import com.load.IO;
-import com.load.ListObject;
-import com.load.Pair;
-import com.load.ValidateEmail;
-import com.load.tables.issuedao.IssueDao;
+import com.aryaman.load.IO;
+import com.aryaman.load.ListObject;
+import com.aryaman.load.Pair;
+import com.aryaman.load.ValidateEmail;
+import com.aryaman.load.Format;
+import com.aryaman.load.tables.issuedao.IssueDao;
+import com.diogonunes.jcolor.Ansi;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DatabaseField;
@@ -22,7 +24,6 @@ import java.io.Reader;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.load.Format.*;
 import static com.diogonunes.jcolor.Ansi.colorize;
 import static com.diogonunes.jcolor.Attribute.*;
 
@@ -59,7 +60,7 @@ public class Student extends Table {
     }
 
     public void add(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Add a student to the database%n%n", HEADING));
+        System.out.printf(colorize("Add a student to the database%n%n", Format.HEADING));
 
         IO io = new IO();
         Student student = new Student();
@@ -80,7 +81,7 @@ public class Student extends Table {
     }
 
     public void remove(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Remove a student from the database%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Remove a student from the database%n%n", Format.HEADING));
 
         Student student = select(connectionSource);
 
@@ -98,11 +99,11 @@ public class Student extends Table {
             getDao(connectionSource).delete(student);
         }
 
-        System.out.printf(colorize("%nPart successfully removed%n", SUCCESS));
+        System.out.printf(Ansi.colorize("%nPart successfully removed%n", Format.SUCCESS));
     }
 
     public void edit(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Edit a student's info%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Edit a student's info%n%n", Format.HEADING));
 
         Student student = select(connectionSource);
 
@@ -121,11 +122,11 @@ public class Student extends Table {
 
         getDao(connectionSource).update(student);
 
-        System.out.printf(colorize("%nSuccessfully edited student info%n", SUCCESS));
+        System.out.printf(Ansi.colorize("%nSuccessfully edited student info%n", Format.SUCCESS));
     }
 
     public void list(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("All students%n%n", HEADING));
+        System.out.printf(Ansi.colorize("All students%n%n", Format.HEADING));
 
         Dao<Student, Integer> dao = getDao(connectionSource);
 
@@ -209,7 +210,7 @@ public class Student extends Table {
 
     @Override
     public void filter(ConnectionSource connectionSource) throws SQLException {
-        System.out.printf(colorize("Filter students%n%n", HEADING));
+        System.out.printf(Ansi.colorize("Filter students%n%n", Format.HEADING));
         System.out.println("Enter \"*\" for no filtering on a field");
 
         int where_num = 0;
@@ -245,7 +246,7 @@ public class Student extends Table {
         String email = io.getString("Student Email: ");
         if (!email.equals("*")) {
             if (!new ValidateEmail().validate(email)) {
-                System.out.println(colorize("Invalid error", ERROR));
+                System.out.println(Ansi.colorize("Invalid error", Format.ERROR));
                 return;
             }
 
@@ -280,11 +281,11 @@ public class Student extends Table {
             List<Student> students = csvToBean.parse();
 
             for (Student student : students) {
-                System.out.printf(colorize("Adding student %s", SUCCESS), student.name);
+                System.out.printf(Ansi.colorize("Adding student %s", Format.SUCCESS), student.name);
                 student.create(connectionSource);
             }
         } catch (FileNotFoundException e) {
-            System.out.println(colorize("Could not find file because it does not exist", ERROR));
+            System.out.println(Ansi.colorize("Could not find file because it does not exist", Format.ERROR));
         }
     }
 }

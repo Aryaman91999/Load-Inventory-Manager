@@ -1,4 +1,4 @@
-package com.load.tables;
+package com.aryaman.load.tables;
 
 import java.sql.SQLException;
 

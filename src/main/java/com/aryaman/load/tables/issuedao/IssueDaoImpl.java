@@ -1,10 +1,10 @@
-package com.load.tables.issuedao;
+package com.aryaman.load.tables.issuedao;
 
+import com.aryaman.load.tables.Issue;
+import com.aryaman.load.tables.Part;
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.support.ConnectionSource;
-import com.load.tables.Issue;
-import com.load.tables.Part;
-import com.load.tables.Student;
+import com.aryaman.load.tables.Student;
 
 import java.sql.SQLException;
 import java.util.List;
