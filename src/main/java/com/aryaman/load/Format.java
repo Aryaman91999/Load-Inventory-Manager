@@ -1,6 +1,8 @@
 package com.aryaman.load;
 import com.diogonunes.jcolor.Attribute;
 import static com.diogonunes.jcolor.Attribute.*;
+import static org.fusesource.jansi.Ansi.*;
+import static org.fusesource.jansi.Ansi.Color.*;
 
 public class Format {
     private Format() {

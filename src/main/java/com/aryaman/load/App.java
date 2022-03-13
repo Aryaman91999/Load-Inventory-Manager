@@ -1,10 +1,6 @@
 package com.aryaman.load;
 
-import com.aryaman.load.tables.Category;
-import com.aryaman.load.tables.Issue;
-import com.aryaman.load.tables.Part;
-import com.aryaman.load.tables.Student;
-import com.diogonunes.jcolor.Ansi;
+import com.aryaman.load.tables.*;
 import com.j256.ormlite.logger.*;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
@@ -33,10 +29,14 @@ public class App {
 
         Options options = ArgManager.build();
 
+        LoggerFactory.setLogBackendType(LogBackendType.LOGBACK);
+
+        Logger logger = LoggerFactory.getLogger(App.class.getName());
+
         try {
             commandLine = cmdParser.parse(options, args);
         } catch (ParseException e) {
-            System.out.println(Ansi.colorize(e.getMessage(), RED_TEXT()));
+            logger.error(e.getMessage());
             System.exit(1);
             return;
         }
@@ -113,14 +113,14 @@ public class App {
         }
 
         if (mod != ' ') {
-            Class<?> model = null;
+            Class<? extends Table> model = null;
             String func;
 
             switch (commandLine.getOptionValue(mod).toLowerCase()) {
                 case "student" -> model = Student.class;
                 case "part" -> model = Part.class;
                 case "issue" -> model = Issue.class;
-                default -> System.out.printf("No such object: %s%n", commandLine.getOptionValue(mod));
+                default -> logger.error(String.format("No such object: %s", commandLine.getOptionValue(mod)));
             }
 
             if (model == null) {
@@ -144,7 +144,7 @@ public class App {
                 try {
                     db.close();
                 } catch (Exception e) {
-                    System.out.printf("An Exception occurred: %s%n", e.getMessage());
+                    logger.error(String.format("An Exception occurred: %s%nCheck ./logs/debug.log for more information", e.getMessage()));
                 }
             }));
 
@@ -157,10 +157,10 @@ public class App {
                 model.getMethod(func, ConnectionSource.class).invoke(model.getConstructor().newInstance(), db);
             } catch (InvocationTargetException e) {
                 if (e.getCause() instanceof SQLException) {
-                    System.out.printf("SQL Error: %s%n", e.getCause().getMessage());
+                    logger.error(String.format("SQL Error: %s%nCheck ./logs/debug.log for more information", e.getCause().getMessage()));
                 }
             } catch (Exception e) {
-                System.out.printf("An Exception occurred: %s%n", e.getMessage());
+                logger.error(String.format("An Exception occurred: %s%nCheck ./logs/debug.log for more information", e.getMessage()));
             }
 
         }
